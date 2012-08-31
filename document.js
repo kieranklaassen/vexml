@@ -3,10 +3,10 @@ Vex.Flow.VeXML.Document = function(data, options) {
   if (arguments.length > 0) this.init(data, options);
 }
 
-Vex.Flow.VeXML.Document.init = function(data, options) {
+Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
   this.options = {};
   Vex.Merge(this.options, options);
-  if (data instanceof String) {
+  if (typeof data == "string") {
     // Parse XML string
     if (window.DOMParser && typeof XMLDocument != "undefined")
       { this.doc = (new window.DOMParser()).parseFromString(data, "text/xml"); }
@@ -19,5 +19,15 @@ Vex.Flow.VeXML.Document.init = function(data, options) {
     else
       { throw new Error("No XML parser found"); }
   }
-  console.log(this.doc);
+  else if (data instanceof Document)
+    { this.doc = data; }
+  else {
+    throw new Error("Can't load MusicXML document from a " + data.constructor.name);
+  }
+  this.documentElement = this.doc.documentElement;
+}
+
+Vex.Flow.VeXML.Document.prototype.serialize = function() {
+  var serializer = new XMLSerializer();
+  return serializer.serializeToString(this.doc);
 }
