@@ -1,9 +1,9 @@
 /** @constructor */
-Vex.ML.Document = function(data, options) {
+Vex.Flow.VeXML.Document = function(data, options) {
   if (arguments.length > 0) this.init(data, options);
 }
 
-Vex.ML.Document.init = function(data, options) {
+Vex.Flow.VeXML.Document.init = function(data, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   if (data instanceof String) {
@@ -19,4 +19,5 @@ Vex.ML.Document.init = function(data, options) {
     else
       { throw new Error("No XML parser found"); }
   }
+  console.log(this.doc);
 }

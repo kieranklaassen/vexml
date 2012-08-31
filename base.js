@@ -1,1 +1,1 @@
-Vex.ML = {};
+Vex.Flow.VeXML = {};
