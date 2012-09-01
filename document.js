@@ -31,3 +31,34 @@ Vex.Flow.VeXML.Document.prototype.serialize = function() {
   var serializer = new XMLSerializer();
   return serializer.serializeToString(this.doc);
 }
+
+Vex.Flow.VeXML.Document.prototype.getPartIDs = function() {
+  var partList = this.doc.getElementsByTagName('part-list')[0];
+  if (! partList) return {};
+  var allPartIDs = partList.getElementsByTagName('score-part');
+  var parts = []
+  for (var i=0; i < allPartIDs.length; i++) {
+    var part = allPartIDs[i];
+    parts.push(part.getAttribute('id'));
+  }
+  return parts;
+}
+
+Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
+  var partIDs = this.getPartIDs();
+  var id;
+  if (! parseInt(partNum)) {
+    id = partIDs[partNum]; }
+  else {
+    id = partNum; }
+  if (partNum >= partIDs.length) return null;
+  var allParts = this.doc.getElementsByTagName('part');
+  var partElement = undefined;
+  for (var i = 0; i < allParts.length; i++)
+    if (allParts[i].getAttribute('id') == id) {
+      partElement = allParts[i];
+      break;
+    }
+  var part = new Vex.Flow.VeXML.Part(partElement);
+  return part;
+}

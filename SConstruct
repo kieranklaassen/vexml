@@ -8,7 +8,9 @@ from vexflow_scons import *
 vexml_sources = [
     "header.js",
     "base.js",
-    "musicxml.js",
+    "document.js",
+    "part.js",
+    "measure.js"
     ]
 
 Import("dbg opt")
