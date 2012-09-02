@@ -8,7 +8,7 @@ Vex.Flow.Test.VeXML.Start = function() {
 }
 
 Vex.Flow.Test.VeXML.docString = function() {
-  expect(5);
+  expect(7);
   var doc = new Vex.Flow.VeXML.Document("<score-partwise />");
   if (doc.documentElement.nodeName != 'score-partwise') {
     ok(false, "empty document failed:" + doc.documentElement);
@@ -62,13 +62,10 @@ Vex.Flow.Test.VeXML.docString = function() {
   }
   ok(true, 'part id count passed');
   var part = doc.getPart(0);
-  if (part)
-    ok(true, 'part object passed');
-  else
-    ok(false, 'part object failed');
+  ok(part, 'part object passed');
   var measure = part.getMeasure(1);
-  if (measure)
-    ok(true, 'measure object passed');
-  else
-    ok(false, 'measure object failed');
+  ok(measure, 'measure object passed');
+  var notes = measure.getNotes();
+  ok(notes.length == 1, 'notes count passed');
+  ok(notes[0].pitch == 'c/4', 'note pitch passed');
 }
