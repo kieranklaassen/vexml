@@ -1,3 +1,9 @@
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Part - Represents an entire MusicXML part, which may contain multiple
+// PartStaffs and/or Voices, which contain Notes.
+
 Vex.Flow.VeXML.Part = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }

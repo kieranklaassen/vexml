@@ -1,3 +1,8 @@
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Document - Represents an entire MusicXML document.
+
 /** @constructor */
 Vex.Flow.VeXML.Document = function(data, options) {
   if (arguments.length > 0) this.init(data, options);

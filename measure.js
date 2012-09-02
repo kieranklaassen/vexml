@@ -1,3 +1,8 @@
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Measure - Represents one measure of a Part.
+
 Vex.Flow.VeXML.Measure = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }

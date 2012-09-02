@@ -1,5 +1,7 @@
-/* Represents a MusicXML "note" element, which may also be a rest.
- */
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Note - Represents a MusicXML "note" element, which may also be a rest.
 
 Vex.Flow.VeXML.Note = function(element, options) {
   if (arguments.length > 0) this.init(element, options);

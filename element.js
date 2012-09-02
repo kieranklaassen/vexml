@@ -1,4 +1,7 @@
-/* Superclass for all classes based on MusicXML elements */
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Element - Abstract class wrapping a particular XML element.
 
 Vex.Flow.VeXML.Element = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
