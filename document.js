@@ -25,6 +25,8 @@ Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
     throw new Error("Can't load MusicXML document from a " + data.constructor.name);
   }
   this.documentElement = this.doc.documentElement;
+  if (this.documentElement.nodeName != 'score-partwise')
+    throw new Error("VeXML only supports partwise scores");
 }
 
 Vex.Flow.VeXML.Document.prototype.serialize = function() {

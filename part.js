@@ -1,13 +1,16 @@
 Vex.Flow.VeXML.Part = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
+Vex.Flow.VeXML.Part.nodeName = 'part';
+
+// Inherits from Vex.Flow.VeXML.Element
+Vex.Flow.VeXML.Part.prototype = new Vex.Flow.VeXML.Element();
+Vex.Flow.VeXML.Part.superclass = Vex.Flow.VeXML.Element;
+Vex.Flow.VeXML.Part.constructor = Vex.Flow.VeXML.Part;
 
 Vex.Flow.VeXML.Part.prototype.init = function(element, options) {
-  this.options = {};
-  Vex.Merge(this.options, options);
-  if (element.nodeName != 'part')
-    throw new Error("VeXML.Part must be created from a part element, not " + element.nodeName);
-  this.element = element;
+  // Why does this refer to the superclass???
+  this.constructor.prototype.init.call(this, element, options);
 }
 
 Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
