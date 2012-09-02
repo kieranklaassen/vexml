@@ -1,13 +1,13 @@
-if (!Vex.Flow.Test) Vex.Flow.Test = {};
-
-Vex.Flow.Test.VeXML = {};
+if (! Vex.Flow.Test.VeXML)
+  Vex.Flow.Test.VeXML = {};
 
 Vex.Flow.Test.VeXML.Start = function() {
   module("VeXML Reading MusicXML");
-  test("Document String Test", Vex.Flow.Test.VeXML.docString);
+  test("Simple Document Test", Vex.Flow.Test.VeXML.simpleTest);
+  test("Sample 2-Part With Lyrics", Vex.Flow.Test.VeXML.sample2PartLyricsTest);
 }
 
-Vex.Flow.Test.VeXML.docString = function() {
+Vex.Flow.Test.VeXML.simpleTest = function() {
   expect(7);
   var doc = new Vex.Flow.VeXML.Document("<score-partwise />");
   if (doc.documentElement.nodeName != 'score-partwise') {
@@ -15,44 +15,7 @@ Vex.Flow.Test.VeXML.docString = function() {
     return;
   }
   ok(true, "empty document passed");
-  var docString = '\
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
-<!DOCTYPE score-partwise PUBLIC\
-    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"\
-    "http://www.musicxml.org/dtds/partwise.dtd">\
-<score-partwise version="3.0">\
-  <part-list>\
-    <score-part id="P1">\
-      <part-name>Music</part-name>\
-    </score-part>\
-  </part-list>\
-  <part id="P1">\
-    <measure number="1">\
-      <attributes>\
-        <divisions>1</divisions>\
-        <key>\
-          <fifths>0</fifths>\
-        </key>\
-        <time>\
-          <beats>4</beats>\
-          <beat-type>4</beat-type>\
-        </time>\
-        <clef>\
-          <sign>G</sign>\
-          <line>2</line>\
-        </clef>\
-      </attributes>\
-      <note>\
-        <pitch>\
-          <step>C</step>\
-          <octave>4</octave>\
-        </pitch>\
-        <duration>4</duration>\
-        <type>whole</type>\
-      </note>\
-    </measure>\
-  </part>\
-</score-partwise>';
+  var docString = Vex.Flow.Test.VeXML.Examples.Hello_World;
   doc = new Vex.Flow.VeXML.Document(docString);
   ok(true, 'simple document passed');
   var partIDs = doc.getPartIDs();
@@ -68,4 +31,11 @@ Vex.Flow.Test.VeXML.docString = function() {
   var notes = measure.getNotes();
   ok(notes.length == 1, 'notes count passed');
   ok(notes[0].pitch == 'c/4', 'note pitch passed');
-}
+};
+
+Vex.Flow.Test.VeXML.sample2PartLyricsTest = function() {
+  expect(2);
+  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Apres_Un_Reve);
+  ok(doc && doc instanceof Vex.Flow.VeXML.Document, "doc created");
+  ok(true, 'hi');
+};
