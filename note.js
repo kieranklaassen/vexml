@@ -80,10 +80,10 @@ Vex.Flow.VeXML.Note.prototype.pitchToString = function(pitchElem) {
       string += '##';
       break;
     case -1:
-      string += '-';
+      string += 'b';
       break;
     case -2:
-      string += '--';
+      string += 'bb';
       break;
   }
   string += '/' + octaveInt.toString();
