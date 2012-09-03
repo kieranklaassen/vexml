@@ -6,12 +6,12 @@
 Vex.Flow.VeXML.Note = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
-Vex.Flow.VeXML.Note.nodeName = 'note';
 
 // Inherits from Vex.Flow.VeXML.Element
 Vex.Flow.VeXML.Note.prototype = new Vex.Flow.VeXML.Element();
 Vex.Flow.VeXML.Note.superclass = Vex.Flow.VeXML.Element;
 Vex.Flow.VeXML.Note.constructor = Vex.Flow.VeXML.Note;
+Vex.Flow.VeXML.Note.prototype.nodeName = 'note';
 
 Vex.Flow.VeXML.Note.type = {
   "256th": "256",

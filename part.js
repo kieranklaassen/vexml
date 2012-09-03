@@ -7,16 +7,20 @@
 Vex.Flow.VeXML.Part = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
-Vex.Flow.VeXML.Part.nodeName = 'part';
 
 // Inherits from Vex.Flow.VeXML.Element
 Vex.Flow.VeXML.Part.prototype = new Vex.Flow.VeXML.Element();
 Vex.Flow.VeXML.Part.superclass = Vex.Flow.VeXML.Element;
 Vex.Flow.VeXML.Part.constructor = Vex.Flow.VeXML.Part;
+Vex.Flow.VeXML.Part.prototype.nodeName = 'part';
 
 Vex.Flow.VeXML.Part.prototype.init = function(element, options) {
   // Why does this refer to the superclass???
   this.constructor.prototype.init.call(this, element, options);
+}
+
+Vex.Flow.VeXML.Part.prototype.getNumberOfMeasures = function() {
+  return this.element.getElementsByTagName('measure').length;
 }
 
 Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
@@ -27,6 +31,10 @@ Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
       return measure;
     }
   }
+}
+
+Vex.Flow.VeXML.Part.prototype.getNumberOfStaffs = function() {
+  return this.getMeasure(1).getStaffNumbers().length;
 }
 
 Vex.Flow.VeXML.Part.prototype.getAttributes = function(measureNum) {

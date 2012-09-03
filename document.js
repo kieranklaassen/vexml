@@ -54,7 +54,7 @@ Vex.Flow.VeXML.Document.prototype.getPartIDs = function() {
 Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
   var partIDs = this.getPartIDs();
   var id;
-  if (! parseInt(partNum)) {
+  if (typeof partNum == 'number') {
     id = partIDs[partNum]; }
   else {
     id = partNum; }

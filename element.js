@@ -12,8 +12,8 @@ Vex.Flow.VeXML.Element.prototype.init = function(element, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   this.element = element;
-  if (this.constructor.nodeName &&
-      this.element.nodeName != this.constructor.nodeName) {
+  if (this.nodeName &&
+      this.element.nodeName != this.nodeName) {
     throw new Vex.Flow.Error('Cannot create "' + this.constructor.name
       + '" with a "' + this.element.nodeName + '" element.'); }
 }
