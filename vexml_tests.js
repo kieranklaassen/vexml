@@ -2,8 +2,9 @@ if (! Vex.Flow.Test.VeXML)
   Vex.Flow.Test.VeXML = {};
 
 Vex.Flow.Test.VeXML.Start = function() {
-  module("VeXML Reading MusicXML");
-  test("Simple Document Test", Vex.Flow.Test.VeXML.simpleTest);
+  module("Simple Document");
+  test("Simple Document Read", Vex.Flow.Test.VeXML.simpleTest);
+  Vex.Flow.Test.runTest("Simple Document Draw", Vex.Flow.Test.VeXML.simpleDraw);
   test("Sample 2-Part With Lyrics", Vex.Flow.Test.VeXML.sample2PartLyricsTest);
 }
 
@@ -32,6 +33,17 @@ Vex.Flow.Test.VeXML.simpleTest = function() {
   ok(notes.length == 1, 'notes count passed');
   ok(notes[0].pitch == 'c/4', 'note pitch passed');
 };
+
+Vex.Flow.Test.VeXML.simpleDraw = function(options, contextBuilder) {
+  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Hello_World);
+  var ctx = new contextBuilder(options.canvas_sel, 500, 150);
+  ctx.scale(0.9, 0.9); ctx.setFillStyle("#221"); ctx.setStrokeStyle("#221");
+  var stave = new Vex.Flow.Stave(10, 10, 520);
+  stave.setContext(ctx);
+  stave.draw();
+  doc.getPart(0).engraveMeasuresOnStaves(1, 1, stave, ctx);
+  ok(true, "Drew Measure");
+}
 
 Vex.Flow.Test.VeXML.sample2PartLyricsTest = function() {
   expect(2);
