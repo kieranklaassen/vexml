@@ -9,8 +9,22 @@ About
 VeXML represents MusicXML in JavaScript and will eventually allow VexFlow
 to engrave music using MusicXML input.
 
-Classes
--------
+Display Classes
+---------------
+
+These classes are used to layout and display a document using VexFlow.
+
+* __Viewport__
+
+  Represents a canvas used to display the document.
+
+* __StaffSystem__
+
+  Draws a system (the group of staves from each part), laying out VexFlow
+  Staves and drawing a bracket.
+
+MusicXML Representation
+-----------------------
 
 This the hierarchy of classes VeXML uses to represent MusicXML.
 
