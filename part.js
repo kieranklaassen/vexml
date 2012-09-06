@@ -33,7 +33,7 @@ Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
   }
 }
 
-Vex.Flow.VeXML.Part.prototype.getNumberOfStaffs = function() {
+Vex.Flow.VeXML.Part.prototype.getNumberOfStaves = function() {
   return this.getMeasure(1).getStaffNumbers().length;
 }
 
