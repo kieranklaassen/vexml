@@ -66,6 +66,18 @@ Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
       partElement = allParts[i];
       break;
     }
+  if (! partElement)
+    return undefined;
   var part = new Vex.Flow.VeXML.Part(partElement);
   return part;
+}
+
+Vex.Flow.VeXML.Document.prototype.getTotalStaves = function() {
+  var totalStaves = 0;
+  var partIDs = this.getPartIDs();
+  for (var i = 0; i < partIDs.length; i++) {
+    var part = this.getPart(partIDs[i]);
+    totalStaves += part.getNumberOfStaves();
+  }
+  return totalStaves;
 }
