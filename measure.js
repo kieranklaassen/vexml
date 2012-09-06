@@ -35,10 +35,13 @@ Vex.Flow.VeXML.Measure.prototype.getStaffNumbers = function() {
   // Should contain a "print" element with "staff-layout" children.
   // TODO: Find all staff numbers in use if the "print" element does not exist.
   var printElem = this.element.getElementsByTagName('print')[0];
-  if (! printElem) return [1];
+  if (! printElem) {
+    return [1];
+  }
   var staffLayouts = printElem.getElementsByTagName('staff-layout');
   for (var i = 0; i < staffLayouts.length; i++)
     staffNumbers.push(parseInt(staffLayouts[i].getAttribute('number')));
+  if (! staffNumbers.length) staffNumbers.push(1);
   return staffNumbers;
 }
 
