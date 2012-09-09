@@ -60,5 +60,6 @@ Vex.Flow.Test.VeXML.sample2PartStaffSystem = function(options, contextBuilder) {
   var ctx = new contextBuilder(options.canvas_sel, 500, 300);
   ctx.scale(0.9, 0.9); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);
-  ok(true, 'Line Drawn');
+  staffSystem.drawContents(ctx);
+  ok(true, 'Staff System Drawn');
 };
