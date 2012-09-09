@@ -79,6 +79,12 @@ Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
   }
 }
 
+Vex.Flow.VeXML.StaffSystem.prototype.getStaves = function() {
+  if (! this.staves || ! this.staves.length)
+    this.createStaves();
+  return this.staves;
+}
+
 Vex.Flow.VeXML.StaffSystem.prototype.draw = function(context) {
   if (! this.staves || ! this.staves.length)
     this.createStaves();
@@ -127,4 +133,22 @@ Vex.Flow.VeXML.StaffSystem.prototype.draw = function(context) {
 
 
   this.getEndMeasure();
+}
+
+Vex.Flow.VeXML.StaffSystem.prototype.drawContents = function(context) {
+  var partIDs = this.document.getPartIDs(),
+      startStave = 0;
+  for (var i = 0; i < partIDs.length; i++) {
+    var part = this.document.getPart(i);
+    var partStaves = new Array();
+    var numStaves = part.getNumberOfStaves();
+    for (var j = 0; j < this.staves.length; j++) {
+      partStaves.push(new Array());
+      for (var k = startStave; k < startStave + numStaves; k++)
+        partStaves[partStaves.length-1].push(this.staves[j][k]);
+    }
+    part.engraveMeasuresOnStaves(1,3, partStaves, context);
+    startStave += numStaves;
+  }
+  //this.document.getPart(1).engraveMeasuresOnStaves(1,3,this.getStaves(),context);
 }
