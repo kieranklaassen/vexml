@@ -54,7 +54,28 @@ Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
       noteElements = this.element.getElementsByTagName('note'),
       noteOptions = {'measure': this};
   Vex.Merge(noteOptions, options);
-  for (var i = 0; i < noteElements.length; i++)
-    noteObjects.push(new Vex.Flow.VeXML.Note(noteElements[i], noteOptions));
+  for (var i = 0; i < noteElements.length; i++) {
+    var noteObj = new Vex.Flow.VeXML.Note(noteElements[i].cloneNode(true), noteOptions);
+
+    // Add note to the last note (or chord) and create a chord,
+    // if this is not the first note
+    if (noteElements[i].getElementsByTagName('chord').length == 1 && i != 0) {
+      var lastObject = noteObjects[noteObjects.length-1];
+      if (lastObject instanceof Vex.Flow.VeXML.Chord) {
+        var pitches = lastObject.getPitches();
+        pitches.push(noteObj.pitch);
+        lastObject.setPitches(pitches);
+      }
+      else {
+        var pitches = lastObject.getPitches();
+        Array.prototype.push.apply(pitches, noteObj.getPitches());
+        var chord = new Vex.Flow.VeXML.Chord(pitches, lastObject.getDuration());
+        noteObjects[noteObjects.length-1] = chord;
+      }
+    }
+    else {
+      noteObjects.push(noteObj);
+    }
+  }
   return noteObjects;
 }

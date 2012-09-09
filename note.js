@@ -50,11 +50,27 @@ Vex.Flow.VeXML.Note.prototype.init = function(element, options) {
     this.numDots = dots.length;
   }
 
-  this.rest = (this.element.getElementsByTagName('rest') == 1 ? true : false);
+  var restElem = this.element.getElementsByTagName('rest')[0];
+  if (restElem) {
+    this.rest = true;
+    if (restElem.getAttribute('measure') == 'yes')
+      this.duration = '1r';
+    this.pitch = 'b/4'; // FIXME: non-treble clef
+  }
+  else this.rest = false;
   var pitch = this.element.getElementsByTagName('pitch')[0];
   if (! pitch)
     { return undefined; }
   this.pitch = this.pitchToString(pitch);
+}
+
+// Compatibility with VeXML.Chord
+Vex.Flow.VeXML.Note.prototype.getPitches = function() {
+  return [this.pitch];
+}
+
+Vex.Flow.VeXML.Note.prototype.getDuration = function () {
+  return this.duration;
 }
 
 Vex.Flow.VeXML.Note.prototype.pitchToString = function(pitchElem) {
