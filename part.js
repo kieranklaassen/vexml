@@ -65,7 +65,7 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
   for (var i = 0; i < staves.length; i++) {
     var measureStaves = staves[i],
         measureNum = measureStart + i,
-        measure = new Vex.Flow.VeXML.Measure(staff.getMeasure(measureNum)),
+        measure = staff.getMeasure(measureNum),
         voices = new Array(),
         voiceStaves = new Array();
     if (measureStaves instanceof Vex.Flow.Stave) {
@@ -78,7 +78,7 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
         staffMeasure = this.getMeasure(measureNum);
       else {
         var staff = this.getStaff(staveNum + 1);
-        staffMeasure = new Vex.Flow.VeXML.Measure(staff.getMeasure(measureNum));
+        staffMeasure = staff.getMeasure(measureNum);
       }
       var notes = staffMeasure.getNotes();
       var vfNotes = new Array();

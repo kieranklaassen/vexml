@@ -15,6 +15,13 @@ Vex.Flow.VeXML.PartStaff.prototype.init = function(parentElement, options) {
   if (! this.options.staff_num)
     throw new Error('VeXML.PartStaff requires a staff_num');
   this.parentElement = parentElement;
+
+  this.clef = 'treble';
+  var measure1 = this.getMeasure(1);
+  if (measure1.clef)
+    this.clef = measure1.clef;
+  else
+    this.clef = undefined;
 }
 
 Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
@@ -78,5 +85,7 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       clone.appendChild(printElem);
     }
   }
-  return clone;
+  var measureOptions = {clef: this.clef};
+  Vex.Merge(measureOptions, options);
+  return new Vex.Flow.VeXML.Measure(clone, measureOptions);
 }

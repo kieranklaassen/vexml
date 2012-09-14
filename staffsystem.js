@@ -50,7 +50,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.getModifierArray = function(measureNum) {
     //var stave = new Vex.Flow.Stave(0, 0, 500);
     var partStaffNum = this.partStaffForStaffNum(i);
     var partStaff = this.document.getPart(partStaffNum[0]).getStaff(partStaffNum[1]+1);
-    var measure = new Vex.Flow.VeXML.Measure(partStaff.getMeasure(measureNum));
+    var measure = partStaff.getMeasure(measureNum);
     var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.startMeasure)});
     modifierArray.push(modifiers);
   }
