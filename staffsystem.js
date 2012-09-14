@@ -27,6 +27,36 @@ Vex.Flow.VeXML.StaffSystem.prototype.init = function(doc, options) {
   this.staveHeight = (new Vex.Flow.Stave(0,0,100)).getHeight();
 }
 
+// Get part and staff within part as an array
+// Part and staff numbers are zero-indexed
+Vex.Flow.VeXML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
+  var stavesBefore = 0;
+  var partIDs = this.document.getPartIDs();
+  for (var i = 0; i < partIDs.length; i++) {
+    var part = this.document.getPart(i);
+    var numPartStaves = part.getNumberOfStaves();
+    if (stavesBefore + numPartStaves > staffNum) {
+      return [i, staffNum - stavesBefore];
+    }
+    stavesBefore += numPartStaves;
+  }
+}
+
+Vex.Flow.VeXML.StaffSystem.prototype.getModifierArray = function(measureNum) {
+  // Create staves with a dummy width and the correct modifiers
+  var modifierArray = new Array();
+  var numStaves = this.document.getTotalStaves();
+  for (var i = 0; i < numStaves; i++) {
+    //var stave = new Vex.Flow.Stave(0, 0, 500);
+    var partStaffNum = this.partStaffForStaffNum(i);
+    var partStaff = this.document.getPart(partStaffNum[0]).getStaff(partStaffNum[1]+1);
+    var measure = new Vex.Flow.VeXML.Measure(partStaff.getMeasure(measureNum));
+    var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.startMeasure)});
+    modifierArray.push(modifiers);
+  }
+  return modifierArray;
+}
+
 Vex.Flow.VeXML.StaffSystem.prototype.getEndMeasure = function() {
   if (this.endMeasure) return this.endMeasure;
   
@@ -71,9 +101,12 @@ Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
   for (var i = 0; i <= this.endMeasure - this.startMeasure; i++) {
     // Array of Staves for each staff
     this.staves[i] = new Array();
+    var measureModifiers = this.getModifierArray(i+this.startMeasure);
     for (var j = 0; j < this.options.numberOfStaves; j++) {
       var yOrigin = j * (this.staveHeight + this.options.inter_staff_space);
       this.staves[i][j] = new Vex.Flow.Stave(origin, yOrigin, measureWidths[i]);
+      for (var k = 0; k < measureModifiers[j].length; k++)
+        this.staves[i][j].addModifier(measureModifiers[j][k]);
     }
     origin += measureWidths[i];
   }

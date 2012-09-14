@@ -52,7 +52,7 @@ Vex.Flow.VeXML.Measure.prototype.getStaff = function(staffNum) {
 Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
   var noteObjects = new Array(),
       noteElements = this.element.getElementsByTagName('note'),
-      noteOptions = {'measure': this};
+      noteOptions = {measure: this};
   Vex.Merge(noteOptions, options);
   for (var i = 0; i < noteElements.length; i++) {
     var noteObj = new Vex.Flow.VeXML.Note(noteElements[i].cloneNode(true), noteOptions);
@@ -78,4 +78,20 @@ Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
     }
   }
   return noteObjects;
+}
+
+// Return a list of VexFlow stave modifiers
+Vex.Flow.VeXML.Measure.prototype.getStaveModifiers = function(opts) {
+  var options = {};
+  Vex.Merge(options, opts);
+  var modifiers = new Array();
+  if (options['line_start']) {
+    var clef = this.attributes.getElementsByTagName('clef')[0];
+    if (clef) modifiers.push(new Vex.Flow.Clef(Vex.Flow.VeXML.Attributes.Clef(clef)));
+    var key = this.attributes.getElementsByTagName('key')[0];
+    if (key) modifiers.push(new Vex.Flow.KeySignature(Vex.Flow.VeXML.Attributes.Key(key).pitch));
+    var time = this.attributes.getElementsByTagName('time')[0];
+    if (time) modifiers.push(new Vex.Flow.TimeSignature(Vex.Flow.VeXML.Attributes.Time(time).symbol));
+  }
+  return modifiers;
 }

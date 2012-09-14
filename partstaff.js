@@ -39,8 +39,9 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       for (var j = 0; j < attrNodes.length; j++) {
         var attrNode = attrNodes[j];
         if (attrNode.getAttribute && attrNode.getAttribute('number') &&
-            parseInt(attrNode.getAttribute('number')) != measureNum)
+            parseInt(attrNode.getAttribute('number')) != this.options.staff_num) {
           continue;
+        }
         attrElem.appendChild(attrNode.cloneNode(true));
       }
       clone.appendChild(attrElem);
@@ -59,6 +60,5 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       clone.appendChild(printElem);
     }
   }
-  console.log(clone);
   return clone;
 }

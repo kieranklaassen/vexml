@@ -56,8 +56,8 @@ Vex.Flow.Test.VeXML.sample2PartStaffSystem = function(options, contextBuilder) {
   ok(part2.getNumberOfMeasures() == 4, 'doc has correct number of measures');
   ok(part2.getNumberOfStaves() == 2, 'part has correct number of staffs');
   ok(doc.getTotalStaves() == 3, 'doc has correct number of staves');
-  var staffSystem = new Vex.Flow.VeXML.StaffSystem(doc, {x:20,y:0,width:520});
-  var ctx = new contextBuilder(options.canvas_sel, 500, 300);
+  var staffSystem = new Vex.Flow.VeXML.StaffSystem(doc, {x:20,y:0,width:620});
+  var ctx = new contextBuilder(options.canvas_sel, 600, 300);
   ctx.scale(0.9, 0.9); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);
   staffSystem.drawContents(ctx);

@@ -80,7 +80,6 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
         var staff = this.getStaff(staveNum + 1);
         staffMeasure = new Vex.Flow.VeXML.Measure(staff.getMeasure(measureNum));
       }
-      console.log(staffMeasure);
       var notes = staffMeasure.getNotes();
       var vfNotes = new Array();
       for (var n = 0; n < notes.length; n++) {
