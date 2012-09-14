@@ -27,6 +27,14 @@ Vex.Flow.VeXML.Measure.prototype.init = function(element, options) {
   this.divisions = divisions;
   // Vex.Flow.RESOLUTION == 4 quarter notes
   this.ticksPerDivision = Vex.Flow.RESOLUTION / (4 * divisions);
+  
+  var clef = this.attributes.getElementsByTagName('clef')[0];
+  if (clef)
+    this.clef = Vex.Flow.VeXML.Attributes.Clef(clef);
+  else if ('clef' in this.options)
+    this.clef = this.options.clef;
+  else
+    this.clef = undefined;
 }
 
 Vex.Flow.VeXML.Measure.prototype.getStaffNumbers = function() {

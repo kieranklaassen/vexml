@@ -22,15 +22,34 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   var clone = origMeasure.element.cloneNode(false);
   // Need to add child node objects from original
   var childNodes = origMeasure.element.childNodes;
+
+  // True if a chord has to be split across multiple staffs
+  var newChord = false;
   for (var i = 0; i < childNodes.length; i++) {
     var node = childNodes[i];
     if (node.tagName == 'note' || node.tagName == 'direction') {
       // Look for "staff" element matching this staff
       var staff = node.getElementsByTagName('staff')[0];
       if (! staff) continue;
-      if (parseInt(staff.textContent) != this.options.staff_num)
+      if (parseInt(staff.textContent) != this.options.staff_num) {
+        // If this is a note, we need to remove the next chord element
+        // on a note on the current staff (if there is one).
+        if (node.tagName == 'note' &&
+            node.getElementsByTagName('chord').length == 1)
+          newChord = true;
         continue;
-      clone.appendChild(node.cloneNode(true));
+      }
+      var newNode = node.cloneNode(true);
+      // Split chords across multiple staffs
+      if (newNode.tagName == 'note') {
+        if (newChord) {
+          var chord = newNode.getElementsByTagName('chord')[0];
+          if (chord) newNode.removeChild(chord);
+        }
+        // We don't need to split the next note in a chord
+        newChord = false;
+      }
+      clone.appendChild(newNode);
     }
     else if (node.tagName == 'attributes') {
       // Remove any elements that are for another staff
@@ -39,9 +58,8 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       for (var j = 0; j < attrNodes.length; j++) {
         var attrNode = attrNodes[j];
         if (attrNode.getAttribute && attrNode.getAttribute('number') &&
-            parseInt(attrNode.getAttribute('number')) != this.options.staff_num) {
+            parseInt(attrNode.getAttribute('number')) != this.options.staff_num)
           continue;
-        }
         attrElem.appendChild(attrNode.cloneNode(true));
       }
       clone.appendChild(attrElem);

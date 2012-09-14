@@ -83,8 +83,12 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
       var notes = staffMeasure.getNotes();
       var vfNotes = new Array();
       for (var n = 0; n < notes.length; n++) {
-        vfNotes[n] = new Vex.Flow.StaveNote({ keys: notes[n].getPitches(),
-                                            duration: notes[n].getDuration() });
+        var noteOptions = { keys: notes[n].getPitches(),
+                            duration: notes[n].getDuration() };
+        if (noteOptions.keys[0].indexOf('r') != -1)
+          // Is not a rest
+          noteOptions.clef = staffMeasure.clef;
+        vfNotes[n] = new Vex.Flow.StaveNote(noteOptions);
       }
       voices.push(new Vex.Flow.Voice({
         num_beats: 4,
