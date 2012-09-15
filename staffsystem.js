@@ -27,7 +27,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.init = function(doc, options) {
   this.staveHeight = (new Vex.Flow.Stave(0,0,100)).getHeight();
 }
 
-// Get part and staff within part as an array
+// Get part and staff number within part as an array
 // Part and staff numbers are zero-indexed
 Vex.Flow.VeXML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
   var stavesBefore = 0;
@@ -40,6 +40,15 @@ Vex.Flow.VeXML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
     }
     stavesBefore += numPartStaves;
   }
+}
+
+// Return PartStaff object corresponding to the staff
+Vex.Flow.VeXML.StaffSystem.prototype.getPartStaff = function(staffNum) {
+  var partStaffNum = this.partStaffForStaffNum(staffNum);
+  var part = this.document.getPart(partStaffNum[0]);
+  if (! part) return undefined;
+  var staff = part.getStaff(partStaffNum[1]+1);
+  return staff;
 }
 
 Vex.Flow.VeXML.StaffSystem.prototype.getModifierArray = function(measureNum) {
@@ -71,10 +80,11 @@ Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
   this.connectedBarlines = new Array();
   this.connectors = new Array();
   var partIDs = this.document.getPartIDs();
+  var parts = new Array();
   var stavesAbove = 0;
   for (var i = 0; i < partIDs.length; i++) {
-    var part = this.document.getPart(i),
-        numStaves = part.getNumberOfStaves();
+    parts[i] = this.document.getPart(i);
+    var numStaves = parts[i].getNumberOfStaves();
     for (var j = 0; j < numStaves - 1; j++) {
       this.connectedBarlines.push(stavesAbove + j);
     }
@@ -105,6 +115,10 @@ Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
     for (var j = 0; j < this.options.numberOfStaves; j++) {
       var yOrigin = j * (this.staveHeight + this.options.inter_staff_space);
       this.staves[i][j] = new Vex.Flow.Stave(origin, yOrigin, measureWidths[i]);
+      // Get Measure to find clef
+      var staffMeasure = this.getPartStaff(j).getMeasure(i+this.startMeasure);
+      if (staffMeasure.clef)
+        this.staves[i][j].clef = staffMeasure.clef;
       for (var k = 0; k < measureModifiers[j].length; k++)
         this.staves[i][j].addModifier(measureModifiers[j][k]);
     }

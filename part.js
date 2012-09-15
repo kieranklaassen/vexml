@@ -73,21 +73,25 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
     }
     for (var staveNum = 0; staveNum < measureStaves.length; staveNum++) {
       var stave = measureStaves[staveNum];
-      var staffMeasure;
+      var partStaff = undefined, staffMeasure;
       if (measureStaves.length == 1)
         staffMeasure = this.getMeasure(measureNum);
       else {
-        var staff = this.getStaff(staveNum + 1);
-        staffMeasure = staff.getMeasure(measureNum);
+        partStaff = this.getStaff(staveNum + 1);
+        staffMeasure = partStaff.getMeasure(measureNum);
       }
       var notes = staffMeasure.getNotes();
       var vfNotes = new Array();
       for (var n = 0; n < notes.length; n++) {
         var noteOptions = { keys: notes[n].getPitches(),
                             duration: notes[n].getDuration() };
-        if (noteOptions.keys[0].indexOf('r') != -1)
+        if (noteOptions.duration.indexOf('r') == -1
+            && partStaff && 'clef' in partStaff) {
           // Is not a rest
-          noteOptions.clef = staffMeasure.clef;
+          noteOptions.clef = partStaff.clef;
+          console.log('clef ' + staffMeasure.clef);
+          console.warn(noteOptions.keys);
+        }
         vfNotes[n] = new Vex.Flow.StaveNote(noteOptions);
       }
       voices.push(new Vex.Flow.Voice({
