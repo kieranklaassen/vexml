@@ -57,6 +57,30 @@ Vex.Flow.VeXML.Measure.prototype.getStaff = function(staffNum) {
   return new Vex.Flow.VeXML.PartStaff(this, {staffNum: parseInt(staffNum)});
 }
 
+Vex.Flow.VeXML.Measure.prototype.getVoiceNumbers = function() {
+  var voices = new Array();
+  var notes = this.element.getElementsByTagName('note');
+  NOTE:
+  for (var i = 0; i < notes.length; i++) {
+    var voiceElem = notes[i].getElementsByTagName('voice')[0];
+    if (! voiceElem) continue;
+    var voiceNum = parseInt(voiceElem.textContent);
+    if (isNaN(voiceNum)) continue;
+    // See if voice is already in voices array
+    for (var j = 0; j < voices.length; j++)
+      if (voices[j] == voiceNum)
+        continue NOTE;
+    voices.push(voiceNum);
+  }
+  return voices;
+}
+
+Vex.Flow.VeXML.Measure.prototype.getVoice = function(voiceNum, opts) {
+  var options = {voice_num: voiceNum};
+  Vex.Merge(options, opts);
+  return new Vex.Flow.VeXML.Voice(this, options);
+}
+
 Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
   var noteObjects = new Array(),
       noteElements = this.element.getElementsByTagName('note'),

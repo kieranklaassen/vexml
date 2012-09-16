@@ -80,50 +80,44 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
         partStaff = this.getStaff(staveNum + 1);
         staffMeasure = partStaff.getMeasure(measureNum);
       }
-      var notes = staffMeasure.getNotes();
-      var vfNotes = new Array();
-      for (var n = 0; n < notes.length; n++) {
-        var noteOptions = { keys: notes[n].getPitches(),
-                            duration: notes[n].getDuration() };
-        if (noteOptions.duration.indexOf('r') == -1
-            && partStaff && 'clef' in partStaff) {
-          // Is not a rest
-          noteOptions.clef = partStaff.clef;
-          console.log('clef ' + staffMeasure.clef);
-          console.warn(noteOptions.keys);
+      var voiceNums = staffMeasure.getVoiceNumbers();
+      if (! voiceNums.length) voiceNums = [undefined];
+      for (var v = 0; v < voiceNums.length; v++) {
+        var voice, notes;
+        if (voiceNums[v]) {
+          voice = staffMeasure.getVoice(voiceNums[v]);
+          notes = voice.getMeasure(measureNum).getNotes();
         }
-        vfNotes[n] = new Vex.Flow.StaveNote(noteOptions);
+        else
+          notes = staffMeasure.getNotes();
+        var vfNotes = new Array();
+        for (var n = 0; n < notes.length; n++) {
+          var noteOptions = { keys: notes[n].getPitches(),
+                              duration: notes[n].getDuration() };
+          if (noteOptions.duration.indexOf('r') == -1
+              && partStaff && 'clef' in partStaff) {
+            // Is not a rest
+            noteOptions.clef = partStaff.clef;
+            console.log('clef ' + staffMeasure.clef);
+            console.warn(noteOptions.keys);
+          }
+          vfNotes[n] = new Vex.Flow.StaveNote(noteOptions);
+        }
+        voices.push(new Vex.Flow.Voice({
+          num_beats: 4,
+          beat_value: 4,
+          resolution: Vex.Flow.RESOLUTION
+        }).setStrict(false).addTickables(vfNotes));
+        voiceStaves.push(stave);
       }
-      voices.push(new Vex.Flow.Voice({
-        num_beats: 4,
-        beat_value: 4,
-        resolution: Vex.Flow.RESOLUTION
-      }).setStrict(false).addTickables(vfNotes));
-      voiceStaves.push(stave);
+      var notesWidth = stave.getNoteEndX() - stave.getNoteStartX();
+      var formatter = new Vex.Flow.Formatter().joinVoices(voices);
+      formatter.format(voices, notesWidth);
+      for (var v = 0; v < voices.length; v++) {
+        voices[v].draw(context, voiceStaves[v]);
+      }
+      voices = new Array();
+      voiceStaves = new Array();
     }
-    var notesWidth = stave.getNoteEndX() - stave.getNoteStartX();
-    var formatter = new Vex.Flow.Formatter().joinVoices(voices);
-    formatter.format(voices, notesWidth);
-    for (var v = 0; v < voices.length; v++) {
-      voices[v].draw(context, voiceStaves[v]);
-    }
-    /*var stave = staves[i];
-    if (stave instanceof Array)
-      stave = stave[0];
-    var notesWidth = stave.getNoteEndX() - stave.getNoteStartX();
-    var vfNotes = new Array();
-    for (var i = 0; i < notes.length; i++) {
-      vfNotes[i] = new Vex.Flow.StaveNote({ keys: notes[i].getPitches(),
-                                            duration: notes[i].getDuration() });
-    }
-    var vfVoice = new Vex.Flow.Voice({
-      num_beats: 4,
-      beat_value: 4,
-      resolution: Vex.Flow.RESOLUTION
-    }).setStrict(false);
-    vfVoice.addTickables(vfNotes);
-    var formatter = new Vex.Flow.Formatter().joinVoices([vfVoice]);
-    formatter.format([vfVoice], notesWidth);
-    vfVoice.draw(context, stave);*/
   }
 }
