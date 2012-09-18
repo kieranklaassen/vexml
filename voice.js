@@ -11,9 +11,14 @@ Vex.Flow.VeXML.Voice = function(parentElement, options) {
 Vex.Flow.VeXML.Voice.prototype.init = function(parentElement, options) {
   this.options = {};
   Vex.Merge(this.options, options);
-  if (! this.options.voice_num)
+  if (! ('voice_num' in this.options))
     throw new Error('VeXML.Voice requires a voice_num');
   this.parentElement = parentElement;
+
+  // Will be used to store VexFlow objects
+  this.vexflowNotes = undefined;
+  this.vexflowObjects = undefined;
+  this.vexflowVoice = undefined;
 }
 
 Vex.Flow.VeXML.Voice.prototype.getMeasure = function(measureNum, options) {
@@ -28,7 +33,12 @@ Vex.Flow.VeXML.Voice.prototype.getMeasure = function(measureNum, options) {
     return (new Vex.Flow.VeXML.Voice(parentMeasure, this.options)).getMeasure(measureNum, options);
   }
   
-  // parentElement is a VeXML.Measure
+  // If voice_num is 0 and the original measure has no explicit voices,
+  // just return the original measure
+  if (this.options.voice_num == 0 &&
+      this.parentElement.getVoiceNumbers().length == 0)
+    return this.parentElement;
+  
   var clone = this.parentElement.element.cloneNode(false);
   var childNodes = this.parentElement.element.childNodes;
   for (var i = 0; i < childNodes.length; i++) {
@@ -47,4 +57,46 @@ Vex.Flow.VeXML.Voice.prototype.getMeasure = function(measureNum, options) {
   var measureOptions = {};
   Vex.Merge(measureOptions, options);
   return new Vex.Flow.VeXML.Measure(clone, measureOptions);
+}
+
+Vex.Flow.VeXML.Voice.prototype.createVexflowNotes = function(measureNum) {
+  var notes = this.getMeasure(measureNum).getNotes();
+  this.vexflowNotes = new Array();
+  this.vexflowObjects = new Array();
+  this.vexflowVoice = undefined;
+  for (var i = 0; i < notes.length; i++) {
+    var noteOptions = { keys: notes[i].getPitches(),
+                        duration: notes[i].getDuration() };
+    if (noteOptions.duration.indexOf('r') == -1
+        && 'clef' in this.parentElement) {
+      // Is not a rest
+      noteOptions.clef = this.parentElement.clef;
+    }
+    this.vexflowNotes.push(new Vex.Flow.StaveNote(noteOptions));
+  }
+  return this.vexflowNotes;
+}
+
+Vex.Flow.VeXML.Voice.prototype.createVexflowVoice = function(measureNum, options) {
+  this.createVexflowNotes();
+  var voiceOptions = {
+    num_beats: 4,
+    beat_value: 4,
+    resolution: Vex.Flow.RESOLUTION
+  };
+  var measure = this.getMeasure(measureNum);
+  if (measure.clef)
+    voiceOptions.clef = measure.clef;
+  Vex.Merge(voiceOptions, options);
+  this.vexflowVoice = new Vex.Flow.Voice(voiceOptions);
+  for (var i = 0; i < this.vexflowNotes.length; i++)
+    this.vexflowNotes[i].setStave(options.stave);
+  this.vexflowVoice.setStrict(false).addTickables(this.vexflowNotes);
+  return this.vexflowVoice;
+}
+
+Vex.Flow.VeXML.Voice.prototype.drawVexflow = function(measureNum, context, stave) {
+  if (! this.vexflowVoice) return undefined;
+  this.vexflowVoice.draw(context, stave);
+  return true;
 }

@@ -28,9 +28,9 @@ Vex.Flow.VeXML.Measure.prototype.init = function(element, options) {
   // Vex.Flow.RESOLUTION == 4 quarter notes
   this.ticksPerDivision = Vex.Flow.RESOLUTION / (4 * divisions);
   
-  var clef = this.attributes.getElementsByTagName('clef')[0];
-  if (clef)
-    this.clef = Vex.Flow.VeXML.Attributes.Clef(clef);
+  var clefs = this.attributes.getElementsByTagName('clef');
+  if (clefs.length == 1)
+    this.clef = Vex.Flow.VeXML.Attributes.Clef(clefs[0]);
   else if ('clef' in this.options)
     this.clef = this.options.clef;
   else

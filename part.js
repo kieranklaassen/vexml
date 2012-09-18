@@ -67,6 +67,7 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
         measureNum = measureStart + i,
         measure = staff.getMeasure(measureNum),
         voices = new Array(),
+        vfVoices = new Array(),
         voiceStaves = new Array();
     if (measureStaves instanceof Vex.Flow.Stave) {
       measureStaves = [measureStaves];
@@ -81,41 +82,18 @@ Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
         staffMeasure = partStaff.getMeasure(measureNum);
       }
       var voiceNums = staffMeasure.getVoiceNumbers();
-      if (! voiceNums.length) voiceNums = [undefined];
+      if (! voiceNums.length) voiceNums = [0];
       for (var v = 0; v < voiceNums.length; v++) {
-        var voice, notes;
-        if (voiceNums[v]) {
-          voice = staffMeasure.getVoice(voiceNums[v]);
-          notes = voice.getMeasure(measureNum).getNotes();
-        }
-        else
-          notes = staffMeasure.getNotes();
-        var vfNotes = new Array();
-        for (var n = 0; n < notes.length; n++) {
-          var noteOptions = { keys: notes[n].getPitches(),
-                              duration: notes[n].getDuration() };
-          if (noteOptions.duration.indexOf('r') == -1
-              && partStaff && 'clef' in partStaff) {
-            // Is not a rest
-            noteOptions.clef = partStaff.clef;
-            console.log('clef ' + staffMeasure.clef);
-            console.warn(noteOptions.keys);
-          }
-          vfNotes[n] = new Vex.Flow.StaveNote(noteOptions);
-        }
-        voices.push(new Vex.Flow.Voice({
-          num_beats: 4,
-          beat_value: 4,
-          resolution: Vex.Flow.RESOLUTION
-        }).setStrict(false).addTickables(vfNotes));
+        var voice = staffMeasure.getVoice(voiceNums[v]);
+        voices.push(voice);
+        vfVoices.push(voice.createVexflowVoice(undefined,{stave:stave}));
         voiceStaves.push(stave);
       }
       var notesWidth = stave.getNoteEndX() - stave.getNoteStartX();
-      var formatter = new Vex.Flow.Formatter().joinVoices(voices);
-      formatter.format(voices, notesWidth);
-      for (var v = 0; v < voices.length; v++) {
-        voices[v].draw(context, voiceStaves[v]);
-      }
+      var formatter = new Vex.Flow.Formatter().joinVoices(vfVoices);
+      formatter.format(vfVoices, notesWidth);
+      for (var v = 0; v < voices.length; v++)
+        voices[v].drawVexflow(undefined, context, voiceStaves[v]);
       voices = new Array();
       voiceStaves = new Array();
     }

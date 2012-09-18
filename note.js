@@ -55,13 +55,23 @@ Vex.Flow.VeXML.Note.prototype.init = function(element, options) {
     this.rest = true;
     if (restElem.getAttribute('measure') == 'yes')
       this.duration = '1r';
-    this.pitch = 'b/4'; // FIXME: non-treble clef
+    // VeXML always interprets rests as treble clef
+    this.pitch = 'b/4';
   }
   else this.rest = false;
   var pitch = this.element.getElementsByTagName('pitch')[0];
   if (! pitch)
     { return undefined; }
   this.pitch = this.pitchToString(pitch);
+
+  var beamElem = this.element.getElementsByTagName('beam')[0];
+  if (beamElem)
+    this.beam = {
+      number: parseInt(beamElem.getAttribute('number')),
+      type: beamElem.textContent,
+    };
+  else
+    this.beam = null;
 }
 
 // Compatibility with VeXML.Chord
@@ -69,7 +79,7 @@ Vex.Flow.VeXML.Note.prototype.getPitches = function() {
   return [this.pitch];
 }
 
-Vex.Flow.VeXML.Note.prototype.getDuration = function () {
+Vex.Flow.VeXML.Note.prototype.getDuration = function() {
   return this.duration;
 }
 
