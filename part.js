@@ -15,8 +15,33 @@ Vex.Flow.VeXML.Part.constructor = Vex.Flow.VeXML.Part;
 Vex.Flow.VeXML.Part.prototype.nodeName = 'part';
 
 Vex.Flow.VeXML.Part.prototype.init = function(element, options) {
-  // Why does this refer to the superclass???
   this.constructor.prototype.init.call(this, element, options);
+
+  this.measureElems = new Array(); // indexed same as MusicXML (typically from 1)
+  var allMeasures = this.element.getElementsByTagName('measure');
+  for (var i = 0; i < allMeasures.length; i++) {
+    var num = parseInt(allMeasures[i].getAttribute('number'));
+    if (isNaN(num)) continue;
+    if (! (num in this.measureElems))
+      this.measureElems[num] = allMeasures[i];
+  }
+
+  this.staves = new Array(); // indexed from 1
+  // Find first measure that exists
+  for (var i = 0; i < this.measureElems.length; i++)
+    if (i in this.measureElems) {
+      var measure = this.measureElems[i];
+      var print = measure.getElementsByTagName('print')[0];
+      if (! print) break;
+      var staffLayouts = print.getElementsByTagName('staff-layout');
+      for (var j = 0; j < staffLayouts.length; j++) {
+        var layout = staffLayouts[j];
+        var staff_num = parseInt(layout.getAttribute('number'));
+        if (isNaN(staff_num)) continue;
+        this.staves[staff_num] = new Vex.Flow.VeXML.PartStaff(this, {staff_num: staff_num});
+      }
+      break;
+    }
 }
 
 Vex.Flow.VeXML.Part.prototype.getNumberOfMeasures = function() {
@@ -24,23 +49,22 @@ Vex.Flow.VeXML.Part.prototype.getNumberOfMeasures = function() {
 }
 
 Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
-  var allMeasures = this.element.getElementsByTagName('measure');
-  for (var i = 0; i < allMeasures.length; i++) {
-    if (allMeasures[i].getAttribute('number') == measureNum) {
-      var measure = new Vex.Flow.VeXML.Measure(allMeasures[i], options);
-      return measure;
-    }
-  }
+  if (! (measureNum in this.measureElems))
+    return undefined;
+  return new Vex.Flow.VeXML.Measure(this.measureElems[measureNum], options);
 }
 
 Vex.Flow.VeXML.Part.prototype.getNumberOfStaves = function() {
-  return this.getMeasure(1).getStaffNumbers().length;
+  if (this.staves.length) return this.staves.length - 1;
+  else return 1;
 }
 
-Vex.Flow.VeXML.Part.prototype.getStaff = function(staff_num, options) {
-  var newOptions = {staff_num: staff_num};
-  Vex.Merge(newOptions, options);
-  return new Vex.Flow.VeXML.PartStaff(this, newOptions);
+Vex.Flow.VeXML.Part.prototype.getStaff = function(staff_num) {
+  if (! this.staves.length && staff_num == 1)
+    return this;
+  if (! staff_num in this.staves)
+    return undefined;
+  return this.staves[staff_num];
 }
 
 Vex.Flow.VeXML.Part.prototype.getAttributes = function(measureNum) {

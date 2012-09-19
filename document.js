@@ -32,6 +32,62 @@ Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
   this.documentElement = this.doc.documentElement;
   if (this.documentElement.nodeName != 'score-partwise')
     throw new Error("VeXML only supports partwise scores");
+  
+  // Create Part object for each part
+  this.parts = {}, this.partGroups = {};
+  this.partIDs = new Array(), this.partStaves = new Array();
+  var partList = this.documentElement.getElementsByTagName('part-list')[0];
+  if (! partList) return undefined;
+  var partListElems = partList.childNodes;
+  var partGroup = null, lastID = null;
+  for (var i = 0; i < partListElems.length; i++) {
+    if (partListElems[i].tagName == 'score-part') {
+      var id = partListElems[i].getAttribute('id');
+      if (! id) continue;
+      this.partIDs.push(id);
+      if (partGroup) {
+        this.partGroups[id] = {};
+        Vex.Merge(this.partGroups[id], partGroup);
+        if (partGroup.type == 'start')
+          partGroup.type = 'continue';
+      }
+      lastID = id;
+    }
+    else if (partListElems[i].tagName == 'part-group') {
+      var groupElem = partListElems[i];
+      var num = parseInt(groupElem.getAttribute('number')),
+          type = groupElem.getAttribute('type');
+      if (type == 'stop' && lastID) {
+        if (this.partGroups[lastID].type == 'start')
+          delete this.partGroups[lastID].type;
+        else
+          this.partGroups[lastID].type = 'stop';
+      }
+      else {
+        var symbolElem = groupElem.getElementsByTagName('group-symbol')[0],
+            barlineElem = groupElem.getElementsByTagName('group-barline')[0];
+        partGroup = {};
+        partGroup.type = type;
+        partGroup.number = num;
+        if (symbolElem) partGroup.symbol = symbolElem.textContent;
+        if (barlineElem) partGroup.symbol = barlineElem.textContent;
+      }
+    }
+  }
+  var partElems = this.documentElement.getElementsByTagName('part');
+  for (var i = 0; i < partElems.length; i++) {
+    var partElem = partElems[i];
+    var id = partElem.getAttribute('id');
+    if (! id) continue;
+    this.parts[id] = new Vex.Flow.VeXML.Part(partElem);
+
+    // Find index of this ID
+    for (var j = 0; j < this.partIDs.length; j++)
+      if (this.partIDs[j] == id) {
+        this.partStaves[j] = this.getPart(id).getNumberOfStaves();
+        break;
+      }
+  }
 }
 
 Vex.Flow.VeXML.Document.prototype.serialize = function() {
@@ -40,15 +96,7 @@ Vex.Flow.VeXML.Document.prototype.serialize = function() {
 }
 
 Vex.Flow.VeXML.Document.prototype.getPartIDs = function() {
-  var partList = this.doc.getElementsByTagName('part-list')[0];
-  if (! partList) return {};
-  var allPartIDs = partList.getElementsByTagName('score-part');
-  var parts = []
-  for (var i=0; i < allPartIDs.length; i++) {
-    var part = allPartIDs[i];
-    parts.push(part.getAttribute('id'));
-  }
-  return parts;
+  return this.partIDs;
 }
 
 Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
@@ -58,26 +106,16 @@ Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
     id = partIDs[partNum]; }
   else {
     id = partNum; }
-  if (partNum >= partIDs.length) return null;
-  var allParts = this.doc.getElementsByTagName('part');
-  var partElement = undefined;
-  for (var i = 0; i < allParts.length; i++)
-    if (allParts[i].getAttribute('id') == id) {
-      partElement = allParts[i];
-      break;
-    }
-  if (! partElement)
+  if (! (id in this.parts))
     return undefined;
-  var part = new Vex.Flow.VeXML.Part(partElement);
-  return part;
+  return this.parts[id];
 }
 
 Vex.Flow.VeXML.Document.prototype.getTotalStaves = function() {
   var totalStaves = 0;
   var partIDs = this.getPartIDs();
   for (var i = 0; i < partIDs.length; i++) {
-    var part = this.getPart(partIDs[i]);
-    totalStaves += part.getNumberOfStaves();
+    totalStaves += this.partStaves[i];
   }
   return totalStaves;
 }
