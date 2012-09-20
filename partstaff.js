@@ -16,7 +16,8 @@ Vex.Flow.VeXML.PartStaff.prototype.init = function(parentElement, options) {
     throw new Error('VeXML.PartStaff requires a staff_num');
   this.parentElement = parentElement;
 
-  this.clef = 'treble';
+  this.measures = new Array();
+
   var measure1 = this.getMeasure(1);
   if (measure1.clef)
     this.clef = measure1.clef;
@@ -25,6 +26,10 @@ Vex.Flow.VeXML.PartStaff.prototype.init = function(parentElement, options) {
 }
 
 Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
+  // Check for cached measure
+  if (measureNum in this.measures)
+    return this.measures[measureNum];
+
   var origMeasure = this.parentElement.getMeasure(measureNum, options);
   var clone = origMeasure.element.cloneNode(false);
   // Need to add child node objects from original
@@ -87,5 +92,7 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   }
   var measureOptions = {clef: this.clef};
   Vex.Merge(measureOptions, options);
-  return new Vex.Flow.VeXML.Measure(clone, measureOptions);
+  var measure = new Vex.Flow.VeXML.Measure(clone, measureOptions);
+  this.measures[measureNum] = measure;
+  return measure;
 }
