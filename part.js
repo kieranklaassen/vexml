@@ -4,17 +4,17 @@
 // Part - Represents an entire MusicXML part, which may contain multiple
 // PartStaffs and/or Voices, which contain Notes.
 
-Vex.Flow.VeXML.Part = function(element, options) {
+Vex.ML.Part = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
 
-// Inherits from Vex.Flow.VeXML.Element
-Vex.Flow.VeXML.Part.prototype = new Vex.Flow.VeXML.Element();
-Vex.Flow.VeXML.Part.superclass = Vex.Flow.VeXML.Element;
-Vex.Flow.VeXML.Part.constructor = Vex.Flow.VeXML.Part;
-Vex.Flow.VeXML.Part.prototype.nodeName = 'part';
+// Inherits from Vex.ML.Element
+Vex.ML.Part.prototype = new Vex.ML.Element();
+Vex.ML.Part.superclass = Vex.ML.Element;
+Vex.ML.Part.constructor = Vex.ML.Part;
+Vex.ML.Part.prototype.nodeName = 'part';
 
-Vex.Flow.VeXML.Part.prototype.init = function(element, options) {
+Vex.ML.Part.prototype.init = function(element, options) {
   this.constructor.prototype.init.call(this, element, options);
 
   this.measureElems = new Array(); // indexed same as MusicXML (typically from 1)
@@ -38,28 +38,28 @@ Vex.Flow.VeXML.Part.prototype.init = function(element, options) {
         var layout = staffLayouts[j];
         var staff_num = parseInt(layout.getAttribute('number'));
         if (isNaN(staff_num)) continue;
-        this.staves[staff_num] = new Vex.Flow.VeXML.PartStaff(this, {staff_num: staff_num});
+        this.staves[staff_num] = new Vex.ML.PartStaff(this, {staff_num: staff_num});
       }
       break;
     }
 }
 
-Vex.Flow.VeXML.Part.prototype.getNumberOfMeasures = function() {
+Vex.ML.Part.prototype.getNumberOfMeasures = function() {
   return this.element.getElementsByTagName('measure').length;
 }
 
-Vex.Flow.VeXML.Part.prototype.getMeasure = function(measureNum, options) {
+Vex.ML.Part.prototype.getMeasure = function(measureNum, options) {
   if (! (measureNum in this.measureElems))
     return undefined;
-  return new Vex.Flow.VeXML.Measure(this.measureElems[measureNum], options);
+  return new Vex.ML.Measure(this.measureElems[measureNum], options);
 }
 
-Vex.Flow.VeXML.Part.prototype.getNumberOfStaves = function() {
+Vex.ML.Part.prototype.getNumberOfStaves = function() {
   if (this.staves.length) return this.staves.length - 1;
   else return 1;
 }
 
-Vex.Flow.VeXML.Part.prototype.getStaff = function(staff_num) {
+Vex.ML.Part.prototype.getStaff = function(staff_num) {
   if (! this.staves.length && staff_num == 1)
     return this;
   if (! staff_num in this.staves)
@@ -67,7 +67,7 @@ Vex.Flow.VeXML.Part.prototype.getStaff = function(staff_num) {
   return this.staves[staff_num];
 }
 
-Vex.Flow.VeXML.Part.prototype.getAttributes = function(measureNum) {
+Vex.ML.Part.prototype.getAttributes = function(measureNum) {
   // Find the last measure containing an attributes section
   for (var i = measureNum; i >= 0; i--) {
     var measure = this.getMeasure(i);
@@ -77,7 +77,7 @@ Vex.Flow.VeXML.Part.prototype.getAttributes = function(measureNum) {
 }
 
 // Should be used to engrave one line of one part
-Vex.Flow.VeXML.Part.prototype.engraveMeasuresOnStaves = function(
+Vex.ML.Part.prototype.engraveMeasuresOnStaves = function(
                                     measureStart, measureEnd, staves, context) {
   // "staves" can be a single stave if there is only one measure
   if (! (staves instanceof Array)) {

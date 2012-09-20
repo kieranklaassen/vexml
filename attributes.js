@@ -1,6 +1,24 @@
-Vex.Flow.VeXML.Attributes = function(){};
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Attributes - Represents an <attributes> element contained by a Measure, which
+// may also inherit some attributes (e.g. clef, time, key signature) from a
+// previous <attributes> element.
 
-Vex.Flow.VeXML.Attributes.Clef = function(clefElem) {
+Vex.ML.Attributes = function(element, options) {
+  if (arguments.length > 0) this.init(element, options);
+}
+
+// Inherits from Vex.ML.Element
+Vex.ML.Attributes.prototype = new Vex.ML.Element();
+Vex.ML.Attributes.superclass = Vex.ML.Element;
+Vex.ML.Attributes.constructor = Vex.ML.Part;
+Vex.ML.Attributes.prototype.nodeName = 'attributes';
+
+Vex.ML.Attributes.prototype.init = function(element, options) {
+}
+
+Vex.ML.Attributes.Clef = function(clefElem) {
   if (clefElem) {
     var signElem = clefElem.getElementsByTagName('sign')[0],
         lineElem = clefElem.getElementsByTagName('line')[0],
@@ -19,7 +37,7 @@ Vex.Flow.VeXML.Attributes.Clef = function(clefElem) {
   return undefined;
 }
 
-Vex.Flow.VeXML.Attributes.Key = function(keyElem) {
+Vex.ML.Attributes.Key = function(keyElem) {
   if (keyElem) {
     var value = {};
     var fifthsElem = keyElem.getElementsByTagName('fifths')[0];
@@ -39,12 +57,16 @@ Vex.Flow.VeXML.Attributes.Key = function(keyElem) {
       case -1: value.pitch = 'F'; break;
       case -2: value.pitch = 'Bb'; break;
       case -3: value.pitch = 'Eb'; break;
+      case -4: value.pitch = 'Ab'; break;
+      case -5: value.pitch = 'Db'; break;
+      case -6: value.pitch = 'Gb'; break;
+      case -7: value.pitch = 'Cb'; break;
     }
     return value;
   }
 }
 
-Vex.Flow.VeXML.Attributes.Time = function(timeElem) {
+Vex.ML.Attributes.Time = function(timeElem) {
   if (timeElem) {
     var value = {};
     var beatsElem = timeElem.getElementsByTagName('beats')[0],

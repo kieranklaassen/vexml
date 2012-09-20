@@ -4,11 +4,11 @@
 // Voice - Represents a set of notes in the same voice, which may span
 // multiple Measures and/or PartStaffs.
 
-Vex.Flow.VeXML.Voice = function(parentElement, options) {
+Vex.ML.Voice = function(parentElement, options) {
   if (arguments.length > 0) this.init(parentElement, options);
 }
 
-Vex.Flow.VeXML.Voice.prototype.init = function(parentElement, options) {
+Vex.ML.Voice.prototype.init = function(parentElement, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   if (! ('voice_num' in this.options))
@@ -21,16 +21,16 @@ Vex.Flow.VeXML.Voice.prototype.init = function(parentElement, options) {
   this.vexflowVoice = undefined;
 }
 
-Vex.Flow.VeXML.Voice.prototype.getMeasure = function(measureNum, options) {
+Vex.ML.Voice.prototype.getMeasure = function(measureNum, options) {
   // Support Part, etc. as parent element by creating a Measure object from them
-  if (! (this.parentElement instanceof Vex.Flow.VeXML.Measure)) {
+  if (! (this.parentElement instanceof Vex.ML.Measure)) {
     if (! ('getMeasure' in this.parentElement))
       return undefined;
     var parentMeasure = this.parentElement.getMeasure(measureNum, options);
-    if (! (parentMeasure.prototype instanceof Vex.Flow.VeXML.Measure))
+    if (! (parentMeasure.prototype instanceof Vex.ML.Measure))
       // Prevent infinite recursion
       return undefined;
-    return (new Vex.Flow.VeXML.Voice(parentMeasure, this.options)).getMeasure(measureNum, options);
+    return (new Vex.ML.Voice(parentMeasure, this.options)).getMeasure(measureNum, options);
   }
   
   // If voice_num is 0 and the original measure has no explicit voices,
@@ -56,10 +56,10 @@ Vex.Flow.VeXML.Voice.prototype.getMeasure = function(measureNum, options) {
 
   var measureOptions = {};
   Vex.Merge(measureOptions, options);
-  return new Vex.Flow.VeXML.Measure(clone, measureOptions);
+  return new Vex.ML.Measure(clone, measureOptions);
 }
 
-Vex.Flow.VeXML.Voice.prototype.createVexflowNotes = function(measureNum) {
+Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
   var notes = this.getMeasure(measureNum).getNotes();
   this.vexflowNotes = new Array();
   this.vexflowObjects = new Array();
@@ -77,7 +77,7 @@ Vex.Flow.VeXML.Voice.prototype.createVexflowNotes = function(measureNum) {
   return this.vexflowNotes;
 }
 
-Vex.Flow.VeXML.Voice.prototype.createVexflowVoice = function(measureNum, options) {
+Vex.ML.Voice.prototype.createVexflowVoice = function(measureNum, options) {
   this.createVexflowNotes();
   var voiceOptions = {
     num_beats: 4,
@@ -95,7 +95,7 @@ Vex.Flow.VeXML.Voice.prototype.createVexflowVoice = function(measureNum, options
   return this.vexflowVoice;
 }
 
-Vex.Flow.VeXML.Voice.prototype.drawVexflow = function(measureNum, context, stave) {
+Vex.ML.Voice.prototype.drawVexflow = function(measureNum, context, stave) {
   if (! this.vexflowVoice) return undefined;
   this.vexflowVoice.draw(context, stave);
   return true;

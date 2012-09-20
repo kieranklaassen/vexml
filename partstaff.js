@@ -5,11 +5,11 @@
 // multiple Measures and/or Voices. May be created from an entire Part or just
 // a single Measure of a Part.
 
-Vex.Flow.VeXML.PartStaff = function(parentElement, options) {
+Vex.ML.PartStaff = function(parentElement, options) {
   if (arguments.length > 0) this.init(parentElement, options);
 }
 
-Vex.Flow.VeXML.PartStaff.prototype.init = function(parentElement, options) {
+Vex.ML.PartStaff.prototype.init = function(parentElement, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   if (! this.options.staff_num)
@@ -25,7 +25,7 @@ Vex.Flow.VeXML.PartStaff.prototype.init = function(parentElement, options) {
     this.clef = undefined;
 }
 
-Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
+Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   // Check for cached measure
   if (measureNum in this.measures)
     return this.measures[measureNum];
@@ -92,7 +92,7 @@ Vex.Flow.VeXML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   }
   var measureOptions = {clef: this.clef};
   Vex.Merge(measureOptions, options);
-  var measure = new Vex.Flow.VeXML.Measure(clone, measureOptions);
+  var measure = new Vex.ML.Measure(clone, measureOptions);
   this.measures[measureNum] = measure;
   return measure;
 }

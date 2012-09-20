@@ -3,12 +3,12 @@
 //
 // Element - Abstract class wrapping a particular XML element.
 
-Vex.Flow.VeXML.Element = function(element, options) {
+Vex.ML.Element = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
-Vex.Flow.VeXML.Element.nodeName = null;
+Vex.ML.Element.nodeName = null;
 
-Vex.Flow.VeXML.Element.prototype.init = function(element, options) {
+Vex.ML.Element.prototype.init = function(element, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   this.element = element;

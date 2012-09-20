@@ -3,17 +3,17 @@
 //
 // Measure - Represents one measure of a Part.
 
-Vex.Flow.VeXML.Measure = function(element, options) {
+Vex.ML.Measure = function(element, options) {
   if (arguments.length > 0) this.init(element, options);
 }
 
-// Inherits from Vex.Flow.VeXML.Element
-Vex.Flow.VeXML.Measure.prototype = new Vex.Flow.VeXML.Element();
-Vex.Flow.VeXML.Measure.superclass = Vex.Flow.VeXML.Element;
-Vex.Flow.VeXML.Measure.constructor = Vex.Flow.VeXML.Measure;
-Vex.Flow.VeXML.Measure.prototype.nodeName = 'measure';
+// Inherits from Vex.ML.Element
+Vex.ML.Measure.prototype = new Vex.ML.Element();
+Vex.ML.Measure.superclass = Vex.ML.Element;
+Vex.ML.Measure.constructor = Vex.ML.Measure;
+Vex.ML.Measure.prototype.nodeName = 'measure';
 
-Vex.Flow.VeXML.Measure.prototype.init = function(element, options) {
+Vex.ML.Measure.prototype.init = function(element, options) {
   this.constructor.prototype.init.call(this, element, options);
   var attributes = this.element.getElementsByTagName('attributes')[0];
   if (! attributes) { return; }
@@ -30,14 +30,14 @@ Vex.Flow.VeXML.Measure.prototype.init = function(element, options) {
   
   var clefs = this.attributes.getElementsByTagName('clef');
   if (clefs.length == 1)
-    this.clef = Vex.Flow.VeXML.Attributes.Clef(clefs[0]);
+    this.clef = Vex.ML.Attributes.Clef(clefs[0]);
   else if ('clef' in this.options)
     this.clef = this.options.clef;
   else
     this.clef = undefined;
 }
 
-Vex.Flow.VeXML.Measure.prototype.getStaffNumbers = function() {
+Vex.ML.Measure.prototype.getStaffNumbers = function() {
   var staffNumbers = new Array();
 
   // Should contain a "print" element with "staff-layout" children.
@@ -53,11 +53,11 @@ Vex.Flow.VeXML.Measure.prototype.getStaffNumbers = function() {
   return staffNumbers;
 }
 
-Vex.Flow.VeXML.Measure.prototype.getStaff = function(staffNum) {
-  return new Vex.Flow.VeXML.PartStaff(this, {staffNum: parseInt(staffNum)});
+Vex.ML.Measure.prototype.getStaff = function(staffNum) {
+  return new Vex.ML.PartStaff(this, {staffNum: parseInt(staffNum)});
 }
 
-Vex.Flow.VeXML.Measure.prototype.getVoiceNumbers = function() {
+Vex.ML.Measure.prototype.getVoiceNumbers = function() {
   var voices = new Array();
   var notes = this.element.getElementsByTagName('note');
   NOTE:
@@ -75,25 +75,25 @@ Vex.Flow.VeXML.Measure.prototype.getVoiceNumbers = function() {
   return voices;
 }
 
-Vex.Flow.VeXML.Measure.prototype.getVoice = function(voiceNum, opts) {
+Vex.ML.Measure.prototype.getVoice = function(voiceNum, opts) {
   var options = {voice_num: voiceNum};
   Vex.Merge(options, opts);
-  return new Vex.Flow.VeXML.Voice(this, options);
+  return new Vex.ML.Voice(this, options);
 }
 
-Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
+Vex.ML.Measure.prototype.getNotes = function(options) {
   var noteObjects = new Array(),
       noteElements = this.element.getElementsByTagName('note'),
       noteOptions = {measure: this};
   Vex.Merge(noteOptions, options);
   for (var i = 0; i < noteElements.length; i++) {
-    var noteObj = new Vex.Flow.VeXML.Note(noteElements[i].cloneNode(true), noteOptions);
+    var noteObj = new Vex.ML.Note(noteElements[i].cloneNode(true), noteOptions);
 
     // Add note to the last note (or chord) and create a chord,
     // if this is not the first note
     if (noteElements[i].getElementsByTagName('chord').length == 1 && i != 0) {
       var lastObject = noteObjects[noteObjects.length-1];
-      if (lastObject instanceof Vex.Flow.VeXML.Chord) {
+      if (lastObject instanceof Vex.ML.Chord) {
         var pitches = lastObject.getPitches();
         pitches.push(noteObj.pitch);
         lastObject.setPitches(pitches);
@@ -101,7 +101,7 @@ Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
       else {
         var pitches = lastObject.getPitches();
         Array.prototype.push.apply(pitches, noteObj.getPitches());
-        var chord = new Vex.Flow.VeXML.Chord(pitches, lastObject.getDuration());
+        var chord = new Vex.ML.Chord(pitches, lastObject.getDuration());
         noteObjects[noteObjects.length-1] = chord;
       }
     }
@@ -113,17 +113,17 @@ Vex.Flow.VeXML.Measure.prototype.getNotes = function(options) {
 }
 
 // Return a list of VexFlow stave modifiers
-Vex.Flow.VeXML.Measure.prototype.getStaveModifiers = function(opts) {
+Vex.ML.Measure.prototype.getStaveModifiers = function(opts) {
   var options = {};
   Vex.Merge(options, opts);
   var modifiers = new Array();
   if (options['line_start']) {
     var clef = this.attributes.getElementsByTagName('clef')[0];
-    if (clef) modifiers.push(new Vex.Flow.Clef(Vex.Flow.VeXML.Attributes.Clef(clef)));
+    if (clef) modifiers.push(new Vex.Flow.Clef(Vex.ML.Attributes.Clef(clef)));
     var key = this.attributes.getElementsByTagName('key')[0];
-    if (key) modifiers.push(new Vex.Flow.KeySignature(Vex.Flow.VeXML.Attributes.Key(key).pitch));
+    if (key) modifiers.push(new Vex.Flow.KeySignature(Vex.ML.Attributes.Key(key).pitch));
     var time = this.attributes.getElementsByTagName('time')[0];
-    if (time) modifiers.push(new Vex.Flow.TimeSignature(Vex.Flow.VeXML.Attributes.Time(time).symbol));
+    if (time) modifiers.push(new Vex.Flow.TimeSignature(Vex.ML.Attributes.Time(time).symbol));
   }
   return modifiers;
 }

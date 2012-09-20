@@ -4,11 +4,11 @@
 // Document - Represents an entire MusicXML document.
 
 /** @constructor */
-Vex.Flow.VeXML.Document = function(data, options) {
+Vex.ML.Document = function(data, options) {
   if (arguments.length > 0) this.init(data, options);
 }
 
-Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
+Vex.ML.Document.prototype.init = function(data, options) {
   this.options = {};
   Vex.Merge(this.options, options);
   if (typeof data == "string") {
@@ -79,7 +79,7 @@ Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
     var partElem = partElems[i];
     var id = partElem.getAttribute('id');
     if (! id) continue;
-    this.parts[id] = new Vex.Flow.VeXML.Part(partElem);
+    this.parts[id] = new Vex.ML.Part(partElem);
 
     // Find index of this ID
     for (var j = 0; j < this.partIDs.length; j++)
@@ -90,16 +90,16 @@ Vex.Flow.VeXML.Document.prototype.init = function(data, options) {
   }
 }
 
-Vex.Flow.VeXML.Document.prototype.serialize = function() {
+Vex.ML.Document.prototype.serialize = function() {
   var serializer = new XMLSerializer();
   return serializer.serializeToString(this.doc);
 }
 
-Vex.Flow.VeXML.Document.prototype.getPartIDs = function() {
+Vex.ML.Document.prototype.getPartIDs = function() {
   return this.partIDs;
 }
 
-Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
+Vex.ML.Document.prototype.getPart = function(partNum) {
   var partIDs = this.getPartIDs();
   var id;
   if (typeof partNum == 'number') {
@@ -111,7 +111,7 @@ Vex.Flow.VeXML.Document.prototype.getPart = function(partNum) {
   return this.parts[id];
 }
 
-Vex.Flow.VeXML.Document.prototype.getTotalStaves = function() {
+Vex.ML.Document.prototype.getTotalStaves = function() {
   var totalStaves = 0;
   var partIDs = this.getPartIDs();
   for (var i = 0; i < partIDs.length; i++) {
