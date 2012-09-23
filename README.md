@@ -9,28 +9,24 @@ About
 VeXML represents MusicXML in JavaScript and will eventually allow VexFlow
 to engrave music using MusicXML input.
 
-Display Classes
----------------
+Using
+-----
 
-These classes are used to layout and display a document using VexFlow.
+Add "vexml" as a subfolder of vexflow. The tests in "runtest.html" will work.
 
-* __Viewport__
-
-  Represents a canvas used to display the document.
-
-* __StaffSystem__
-
-  Draws a system (the group of staves from each part), laying out VexFlow
-  Staves and drawing a bracket.
-
-MusicXML Representation
------------------------
+Classes
+-------
 
 This the hierarchy of classes VeXML uses to represent MusicXML.
 
 * __Document__
 
   The highest-level class, which represents a complete MusicXML document.
+
+* __StaffSystem__
+
+  Draws a system (the group of staves from each part), laying out VexFlow
+  Staves and drawing a bracket.
 
 * __Part__
 
@@ -47,10 +43,15 @@ This the hierarchy of classes VeXML uses to represent MusicXML.
 
   One staff in a part. MusicXML allows voices to use multiple staffs, but
   this may not currently be possible with VexFlow. A staff element does not
-  exist in MusicXML; this object represents all notes in a part with the same
-  "staff" attribute.
+  exist in MusicXML; this object represents all notes in a part or measure with the
+  same "staff" attribute.
 
 * __Voice__
 
   One voice in a part. A voice element does not exist in MusicXML; this object
-  represents all notes in a part with the same "voice" attribute.
+  represents all notes in a part, staff, or measure with the same "voice" attribute.
+
+* __Note__/__Chord__
+
+  A Note represents a single note element, and a Chord represents a group of
+  note elements which are a single chord.
