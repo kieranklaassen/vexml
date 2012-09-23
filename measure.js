@@ -99,14 +99,11 @@ Vex.ML.Measure.prototype.getNotes = function(options) {
     if (noteElements[i].getElementsByTagName('chord').length == 1 && i != 0) {
       var lastObject = noteObjects[noteObjects.length-1];
       if (lastObject instanceof Vex.ML.Chord) {
-        var pitches = lastObject.getPitches();
-        pitches.push(noteObj.pitch);
-        lastObject.setPitches(pitches);
+        lastObject.addNote(noteObj);
       }
       else {
-        var pitches = lastObject.getPitches();
-        Array.prototype.push.apply(pitches, noteObj.getPitches());
-        var chord = new Vex.ML.Chord(pitches, lastObject.getDuration());
+        var chord = new Vex.ML.Chord(lastObject);
+        chord.addNote(noteObj);
         noteObjects[noteObjects.length-1] = chord;
       }
     }

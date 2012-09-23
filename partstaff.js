@@ -73,8 +73,8 @@ Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   // Need to add child node objects from original
   var childNodes = origMeasure.element.childNodes;
 
-  // True if a chord has to be split across multiple staffs
-  var newChord = false;
+  var newChord = false; // True if a chord has to be split across multiple staffs
+  var chordElements = new Array(); // Elements such as <beam> in the current chord
   for (var i = 0; i < childNodes.length; i++) {
     var node = childNodes[i];
     if (node.tagName == 'note' || node.tagName == 'direction') {
@@ -84,9 +84,15 @@ Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       if (parseInt(staff.textContent) != this.options.staff_num) {
         // If this is a note, we need to remove the next chord element
         // on a note on the current staff (if there is one).
-        if (node.tagName == 'note' &&
-            node.getElementsByTagName('chord').length == 1)
+        if (node.tagName == 'note') {
           newChord = true;
+          // Need to add elements such as <beam> to notes in the chord on our staff
+          if (node.getElementsByTagName('chord').length == 0) {
+            chordElements = new Array();
+            var beam = node.getElementsByTagName('beam');
+            Array.prototype.push.apply(chordElements, beam);
+          }
+        }
         continue;
       }
       var newNode = node.cloneNode(true);
@@ -94,7 +100,14 @@ Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
       if (newNode.tagName == 'note') {
         if (newChord) {
           var chord = newNode.getElementsByTagName('chord')[0];
-          if (chord) newNode.removeChild(chord);
+          if (chord) {
+            newNode.removeChild(chord);
+            // Add elements from chordElements
+            //console.log(chordElements.length);
+            //console.log(newNode.appendChild(chordElements[0].cloneNode(true)));
+            for (var j = 0; j < chordElements.length; j++)
+              newNode.appendChild(chordElements[j].cloneNode(true));
+          }
         }
         // We don't need to split the next note in a chord
         newChord = false;

@@ -3,15 +3,23 @@
 //
 // Chord - Represents a group of MusicXML Notes in a chord.
 
-Vex.ML.Chord = function(pitches, duration, options) {
-  if (arguments.length > 0) this.init(pitches, duration, options);
+Vex.ML.Chord = function(firstNote, options) {
+  if (arguments.length > 0) this.init(firstNote, options);
 }
 
-Vex.ML.Chord.prototype.init = function(pitches, duration, options) {
-  this.pitches = pitches;
-  this.duration = duration;
+Vex.ML.Chord.prototype.init = function(firstNote, options) {
+  this.pitches = firstNote.getPitches();
+  this.duration = firstNote.getDuration();
+  for (var prop in firstNote)
+    // Don't want element property or other properties
+    if (firstNote.hasOwnProperty(prop) && prop != 'element')
+      this[prop] = firstNote[prop];
   this.options = {};
   Vex.Merge(this.options, options);
+}
+
+Vex.ML.Chord.prototype.addNote = function(note) {
+  Array.prototype.push.apply(this.pitches, note.getPitches());
 }
 
 Vex.ML.Chord.prototype.setPitches = function(pitches) {
@@ -21,5 +29,5 @@ Vex.ML.Chord.prototype.setPitches = function(pitches) {
 Vex.ML.Chord.prototype.getPitches = function() {
   return this.pitches; }
 
-Vex.ML.Chord.prototype.getDuration = function () {
+Vex.ML.Chord.prototype.getDuration = function() {
   return this.duration; }

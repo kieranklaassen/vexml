@@ -64,6 +64,10 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
   this.vexflowNotes = new Array();
   this.vexflowObjects = new Array();
   this.vexflowVoice = undefined;
+
+  // Array of array of vfNotes in each voice, indexed by MusicXML beam number
+  var beamNotes = new Array();
+
   for (var i = 0; i < notes.length; i++) {
     var noteOptions = { keys: notes[i].getPitches(),
                         duration: notes[i].getDuration() };
@@ -74,7 +78,24 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
     }
     else
       undefined;
-    this.vexflowNotes.push(new Vex.Flow.StaveNote(noteOptions));
+    var vfNote = new Vex.Flow.StaveNote(noteOptions);
+    this.vexflowNotes.push(vfNote);
+
+    if (notes[i].beam) {
+      var beam = notes[i].beam;
+      if (! beam.number || isNaN(beam.number)) continue;
+      if (beam.type == 'begin')
+        beamNotes[beam.number] = [vfNote];
+      else if (beam.type == 'end') {
+        beamNotes[beam.number].push(vfNote);
+        this.vexflowObjects.push(new Vex.Flow.Beam(beamNotes[beam.number]));
+        delete beamNotes[beam.number];
+      }
+      else if (! beam.number in beamNotes)
+        continue;
+      else
+        beamNotes[beam.number].push(vfNote);
+    }
   }
   return this.vexflowNotes;
 }
@@ -100,5 +121,10 @@ Vex.ML.Voice.prototype.createVexflowVoice = function(measureNum, options) {
 Vex.ML.Voice.prototype.drawVexflow = function(measureNum, context, stave) {
   if (! this.vexflowVoice) return undefined;
   this.vexflowVoice.draw(context, stave);
+
+  // Draw each VexFlow object
+  for (var i = 0; i < this.vexflowObjects.length; i++)
+    this.vexflowObjects[i].setContext(context).draw();
+  
   return true;
 }

@@ -77,14 +77,6 @@ Vex.ML.Part.prototype.getAttributes = function(measureNum, options) {
       }
     }
     else {
-      // Create an empty <attributes> tag and use the previous_attributes options
-      // Get the MusicXML document using the <measure> element
-      /*var mxl_doc = this.measureElems[i].ownerDocument;
-      if (! mxl_doc) continue;
-      var empty_elem = mxl_doc.createElement('attributes');
-      this.attributes[i] = new Vex.ML.Attributes(empty_elem, {
-        previous_attributes: lastAttrs
-      });)*/
       this.attributes[i] = Vex.ML.Attributes.createFromPrevious(lastAttrs);
     }
   }
@@ -115,15 +107,6 @@ Vex.ML.Part.prototype.getStaff = function(staff_num) {
   return this.staves[staff_num];
 }
 
-/*Vex.ML.Part.prototype.getAttributes = function(measureNum) {
-  // Find the last measure containing an attributes section
-  for (var i = measureNum; i >= 0; i--) {
-    var measure = this.getMeasure(i);
-    if (measure.attributes)
-      return measure.attributes;
-  }
-}*/
-
 // Should be used to engrave one line of one part
 Vex.ML.Part.prototype.engraveMeasuresOnStaves = function(
                                     measureStart, measureEnd, staves, context) {
@@ -133,11 +116,9 @@ Vex.ML.Part.prototype.engraveMeasuresOnStaves = function(
       throw new Error("Cannot engrave multiple Measures on a single Stave"); }
     staves = [staves];
   }
-  var staff = this.getStaff(1);
   for (var i = 0; i < staves.length; i++) {
     var measureStaves = staves[i],
         measureNum = measureStart + i,
-        measure = staff.getMeasure(measureNum),
         voices = new Array(),
         vfVoices = new Array(),
         voiceStaves = new Array();
