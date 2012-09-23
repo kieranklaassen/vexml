@@ -26,6 +26,9 @@ Vex.ML.Part.prototype.init = function(element, options) {
       this.measureElems[num] = allMeasures[i];
   }
 
+  this.attributes = new Array(); // indexed in measures
+  // Attributes are cached on the fly
+
   this.staves = new Array(); // indexed from 1
   // Find first measure that exists
   for (var i = 0; i < this.measureElems.length; i++)
@@ -42,16 +45,61 @@ Vex.ML.Part.prototype.init = function(element, options) {
       }
       break;
     }
+
+  this.getAttributes(2);
 }
 
 Vex.ML.Part.prototype.getNumberOfMeasures = function() {
   return this.element.getElementsByTagName('measure').length;
 }
 
+Vex.ML.Part.prototype.getAttributes = function(measureNum, options) {
+  if (measureNum in this.attributes)
+    return this.attributes[measureNum];
+
+  var lastAttrs = undefined;
+  for (var i = 0; i <= measureNum; i++) {
+    if (! (i in this.measureElems))
+      continue;
+    // If attributes present, create a new attributes element
+    if (this.measureElems[i].getElementsByTagName('attributes').length) {
+      var attrs = this.measureElems[i].getElementsByTagName('attributes');
+      var options = {};
+      if (lastAttrs) options.previous_attributes = lastAttrs;
+      this.attributes[i] = lastAttrs =
+        new Vex.ML.Attributes(attrs[0], options);
+
+      // If there are multiple <attributes> tags, create a new Attributes object
+      // for each one, and set lastAttrs to the last one.
+      for (var i = 1; i < attrs.length; i++) {
+        var options = {previous_attributes: lastAttrs};
+        lastAttrs = new Vex.ML.Attributes(attrs[0], options);
+      }
+    }
+    else {
+      // Create an empty <attributes> tag and use the previous_attributes options
+      // Get the MusicXML document using the <measure> element
+      /*var mxl_doc = this.measureElems[i].ownerDocument;
+      if (! mxl_doc) continue;
+      var empty_elem = mxl_doc.createElement('attributes');
+      this.attributes[i] = new Vex.ML.Attributes(empty_elem, {
+        previous_attributes: lastAttrs
+      });)*/
+      this.attributes[i] = Vex.ML.Attributes.createFromPrevious(lastAttrs);
+    }
+  }
+
+  return this.attributes[measureNum];
+}
+
 Vex.ML.Part.prototype.getMeasure = function(measureNum, options) {
   if (! (measureNum in this.measureElems))
     return undefined;
-  return new Vex.ML.Measure(this.measureElems[measureNum], options);
+  var measureOptions = {};
+  if (this.getAttributes(measureNum).getClef())
+    measureOptions.clef = this.getAttributes(measureNum).getClef();
+  Vex.Merge(measureOptions, options);
+  return new Vex.ML.Measure(this.measureElems[measureNum], measureOptions);
 }
 
 Vex.ML.Part.prototype.getNumberOfStaves = function() {
@@ -67,14 +115,14 @@ Vex.ML.Part.prototype.getStaff = function(staff_num) {
   return this.staves[staff_num];
 }
 
-Vex.ML.Part.prototype.getAttributes = function(measureNum) {
+/*Vex.ML.Part.prototype.getAttributes = function(measureNum) {
   // Find the last measure containing an attributes section
   for (var i = measureNum; i >= 0; i--) {
     var measure = this.getMeasure(i);
     if (measure.attributes)
       return measure.attributes;
   }
-}
+}*/
 
 // Should be used to engrave one line of one part
 Vex.ML.Part.prototype.engraveMeasuresOnStaves = function(

@@ -6,7 +6,12 @@
 // previous <attributes> element.
 
 Vex.ML.Attributes = function(element, options) {
-  if (arguments.length > 0) this.init(element, options);
+  if (arguments.length > 0) {
+    if (this.init(element, options))
+      return;
+    else
+      return undefined;
+  }
 }
 
 // Inherits from Vex.ML.Element
@@ -16,6 +21,69 @@ Vex.ML.Attributes.constructor = Vex.ML.Part;
 Vex.ML.Attributes.prototype.nodeName = 'attributes';
 
 Vex.ML.Attributes.prototype.init = function(element, options) {
+  if (element.tagName == 'attributes') {
+    // Use attributes element directly
+    this.constructor.prototype.init.call(this, element, options);
+  }
+  else {
+    // Assume element is a measure
+    var attributesElems = element.getElementsByTagName('attributes');
+    if (! attributesElems.length) return undefined;
+  
+    this.constructor.prototype.init.call(this, attributesElems[0], options);
+  }
+
+  this.attributes = {};
+  this.new_attributes = new Array(); // Attributes that are actually present
+  if ('previous_attributes' in this.options &&
+      this.options.previous_attributes instanceof Vex.ML.Attributes)
+    Vex.Merge(this.attributes, this.options.previous_attributes.attributes);
+
+  var clefs = this.element.getElementsByTagName('clef');
+  if (clefs.length == 1) {
+    this.attributes.clef = Vex.ML.Attributes.Clef(clefs[0]);
+  }
+  else if (clefs.length > 1) {
+    if (! ('clef' in this.attributes) || typeof(this.attributes.clef) == 'string')
+      this.attributes.clef = new Array();
+    for (var i = 0; i < clefs.length; i++) {
+      if (! clefs[i].getAttribute('number')
+          || isNaN(parseInt(clefs[i].getAttribute('number'))))
+        continue;
+      this.attributes.clef[parseInt(clefs[i].getAttribute('number'))] =
+        Vex.ML.Attributes.Clef(clefs[i]);
+    }
+  }
+  if (clefs.length) this.new_attributes.push('clef');
+
+  return this;
+}
+
+Vex.ML.Attributes.createFromPrevious = function(previousAttributes) {
+  // Create an empty <attributes> tag
+  // Get the MusicXML document from the previousAttributes object
+  if (! previousAttributes || ! ('element' in previousAttributes) ||
+      ! previousAttributes.element.ownerDocument)
+    return undefined;
+  var mxl_doc = previousAttributes.element.ownerDocument;
+  if (! mxl_doc) return undefined;
+  var empty_elem = mxl_doc.createElement('attributes');
+  return new Vex.ML.Attributes(empty_elem, {
+    previous_attributes: previousAttributes
+  });
+}
+
+Vex.ML.Attributes.prototype.getAttributes = function() {
+  var attributes = {};
+  Vex.Merge(attributes, this.attributes);
+  return attributes;
+}
+
+Vex.ML.Attributes.prototype.getClef = function() {
+  if ('clef' in this.attributes)
+    return this.attributes.clef;
+  else
+    return undefined;
 }
 
 Vex.ML.Attributes.Clef = function(clefElem) {

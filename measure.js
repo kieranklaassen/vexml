@@ -15,6 +15,10 @@ Vex.ML.Measure.prototype.nodeName = 'measure';
 
 Vex.ML.Measure.prototype.init = function(element, options) {
   this.constructor.prototype.init.call(this, element, options);
+  
+  if ('clef' in this.options && this.options.clef)
+    this.clef = this.options.clef;
+  
   var attributes = this.element.getElementsByTagName('attributes')[0];
   if (! attributes) { return; }
   this.attributes = attributes;
@@ -28,13 +32,13 @@ Vex.ML.Measure.prototype.init = function(element, options) {
   // Vex.Flow.RESOLUTION == 4 quarter notes
   this.ticksPerDivision = Vex.Flow.RESOLUTION / (4 * divisions);
   
-  var clefs = this.attributes.getElementsByTagName('clef');
-  if (clefs.length == 1)
-    this.clef = Vex.ML.Attributes.Clef(clefs[0]);
-  else if ('clef' in this.options)
-    this.clef = this.options.clef;
-  else
-    this.clef = undefined;
+  if (! ('clef' in this)) {
+    var clefs = this.attributes.getElementsByTagName('clef');
+    if (clefs.length == 1)
+      this.clef = Vex.ML.Attributes.Clef(clefs[0]);
+    else
+      this.clef = undefined;
+  }
 }
 
 Vex.ML.Measure.prototype.getStaffNumbers = function() {
@@ -77,6 +81,7 @@ Vex.ML.Measure.prototype.getVoiceNumbers = function() {
 
 Vex.ML.Measure.prototype.getVoice = function(voiceNum, opts) {
   var options = {voice_num: voiceNum};
+  if (this.clef) options.clef = this.clef;
   Vex.Merge(options, opts);
   return new Vex.ML.Voice(this, options);
 }

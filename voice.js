@@ -68,10 +68,12 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
     var noteOptions = { keys: notes[i].getPitches(),
                         duration: notes[i].getDuration() };
     if (noteOptions.duration.indexOf('r') == -1
-        && 'clef' in this.parentElement) {
+        && 'clef' in this.options) {
       // Is not a rest
-      noteOptions.clef = this.parentElement.clef;
+      noteOptions.clef = this.options.clef;
     }
+    else
+      undefined;
     this.vexflowNotes.push(new Vex.Flow.StaveNote(noteOptions));
   }
   return this.vexflowNotes;

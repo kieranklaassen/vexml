@@ -16,13 +16,47 @@ Vex.ML.PartStaff.prototype.init = function(parentElement, options) {
     throw new Error('VeXML.PartStaff requires a staff_num');
   this.parentElement = parentElement;
 
+  this.attributes = new Array();
+
   this.measures = new Array();
 
-  var measure1 = this.getMeasure(1);
-  if (measure1.clef)
-    this.clef = measure1.clef;
+  if ('clef' in this.options)
+    this.clef = this.options.clef;
+  else if (this.getAttributes(1).getClef())
+    this.clef = this.getAttributes(1).getClef();
   else
     this.clef = undefined;
+}
+
+Vex.ML.PartStaff.prototype.getAttributes = function(measureNum) {
+  if (measureNum in this.attributes)
+    return this.attributes[measureNum];
+
+  var attributes = this.parentElement.getAttributes(measureNum);
+  // Replace attributes with multiple staves with the attribute for this staff
+  var newAttrs = new Object();
+  var new_new_attributes = new Array();
+  for (var attr in attributes.attributes) {
+    if (attributes.attributes[attr] instanceof Array) {
+      if (this.options.staff_num in attributes.attributes[attr])
+        newAttrs[attr] = attributes.attributes[attr][this.options.staff_num];
+    }
+    else {
+      newAttrs[attr] = attributes.attributes[attr];
+    }
+  }
+  // Add attributes from new_attributes that are in newAttrs
+  for (var i = 0; i < attributes.new_attributes.length; i++) {
+    var attr = attributes.new_attributes[i];
+    if (attr in newAttrs)
+      new_new_attributes.push(attr);
+  }
+
+  var attrsObject = Vex.ML.Attributes.createFromPrevious(attributes);
+  attrsObject.attributes = newAttrs;
+  attrsObject.new_attributes = new_new_attributes;
+  this.attributes[measureNum] = attrsObject;
+  return attrsObject;
 }
 
 Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
@@ -30,7 +64,11 @@ Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
   if (measureNum in this.measures)
     return this.measures[measureNum];
 
-  var origMeasure = this.parentElement.getMeasure(measureNum, options);
+  var measureOptions = {};
+  if (this.getAttributes(measureNum).getClef())
+    measureOptions.clef = this.getAttributes(measureNum).getClef();
+  Vex.Merge(measureOptions, options);
+  var origMeasure = this.parentElement.getMeasure(measureNum, measureOptions);
   var clone = origMeasure.element.cloneNode(false);
   // Need to add child node objects from original
   var childNodes = origMeasure.element.childNodes;
