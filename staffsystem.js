@@ -70,7 +70,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.getEndMeasure = function() {
   if (this.endMeasure) return this.endMeasure;
   
   // TODO: Actually calculate how many measures can fit based on the width.
-  this.endMeasure = this.startMeasure + 2;
+  this.endMeasure = this.startMeasure + 3;
   return this.endMeasure;
 }
 

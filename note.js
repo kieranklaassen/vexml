@@ -24,6 +24,18 @@ Vex.ML.Note.type = {
   "half": "2",
   "whole": "1",
 };
+Vex.ML.Note.accidentals = {
+  "sharp": "#",
+  "flat": "b",
+  "natural": "n",
+  "double-sharp": "##",
+  "sharp-sharp": "##",
+  "flat-flat": "bb",
+  "-1": "b",
+  "-2": "bb",
+  "1": "#",
+  "2": "##",
+};
 
 Vex.ML.Note.prototype.init = function(element, options) {
   this.constructor.prototype.init.call(this, element, options);
@@ -36,6 +48,21 @@ Vex.ML.Note.prototype.init = function(element, options) {
   duration = parseInt(duration.textContent);
   if (isNaN(duration)) { throw new Error("can't parse note duration"); }
   this.numTicks = options.measure.ticksPerDivision * duration;
+
+  var restElem = this.element.getElementsByTagName('rest')[0];
+  if (restElem) {
+    this.rest = true;
+    if (restElem.getAttribute('measure') == 'yes')
+      this.duration = '1r';
+    // Always interpret rests as treble clef
+    this.pitch = 'b/4';
+  }
+  else this.rest = false;
+  var pitch = this.element.getElementsByTagName('pitch')[0];
+  if (! pitch)
+    { return undefined; }
+  this.pitch = this.pitchToString(pitch);
+
   // Symbolic note duration is usually stored as "note type"
   var noteType = this.element.getElementsByTagName('type')[0];
   if (noteType) {
@@ -49,20 +76,18 @@ Vex.ML.Note.prototype.init = function(element, options) {
     }
     this.numDots = dots.length;
   }
+  // Symbolic note accidental
+  var accidental = this.element.getElementsByTagName('accidental')[0];
+  if (accidental)
+    this.accidental = Vex.ML.Note.accidentals[accidental.textContent];
 
-  var restElem = this.element.getElementsByTagName('rest')[0];
-  if (restElem) {
-    this.rest = true;
-    if (restElem.getAttribute('measure') == 'yes')
-      this.duration = '1r';
-    // VeXML always interprets rests as treble clef
-    this.pitch = 'b/4';
+  // Notations element represents additional display information
+  var notations = this.element.getElementsByTagName('notations')[0];
+  if (notations) {
+    var tied = notations.getElementsByTagName('tied')[0];
+    if (tied)
+      this.tieType = tied.getAttribute('type');
   }
-  else this.rest = false;
-  var pitch = this.element.getElementsByTagName('pitch')[0];
-  if (! pitch)
-    { return undefined; }
-  this.pitch = this.pitchToString(pitch);
 
   var beamElem = this.element.getElementsByTagName('beam')[0];
   if (beamElem)

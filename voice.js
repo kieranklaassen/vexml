@@ -67,6 +67,8 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
 
   // Array of array of vfNotes in each voice, indexed by MusicXML beam number
   var beamNotes = new Array();
+  // Array of each vfNote being added to a tie
+  var tiedNotes = new Array();
 
   for (var i = 0; i < notes.length; i++) {
     var noteOptions = { keys: notes[i].getPitches(),
@@ -79,6 +81,13 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
     else
       undefined;
     var vfNote = new Vex.Flow.StaveNote(noteOptions);
+
+    // Add dots
+    for (var d = 0; d < notes[i].numDots; d++)
+      vfNote.addDotToAll();
+    // Add accidentals
+    if ('accidental' in notes[i])
+      vfNote.addAccidental(0, new Vex.Flow.Accidental(notes[i].accidental));
     this.vexflowNotes.push(vfNote);
 
     if (notes[i].beam) {
@@ -95,6 +104,23 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
         continue;
       else
         beamNotes[beam.number].push(vfNote);
+    }
+    if ('tieType' in notes[i]) {
+      if (notes[i].tieType == 'start') tiedNotes = [vfNote];
+      else {
+        tiedNotes.push(vfNote);
+        if (notes[i].tieType == 'stop') {
+          // Tie each consecutive pair of notes
+          for (var i = 0; i + 1 < tiedNotes.length; i++)
+            this.vexflowObjects.push(new Vex.Flow.StaveTie({
+              first_note: tiedNotes[i],
+              last_note: tiedNotes[i+1],
+              first_indices: [0], // FIXME: Chord support
+              last_indices: [0],
+            }));
+        }
+        tiedNotes = new Array();
+      }
     }
   }
   return this.vexflowNotes;
