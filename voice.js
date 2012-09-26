@@ -73,9 +73,7 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
   for (var i = 0; i < notes.length; i++) {
     var noteOptions = { keys: notes[i].getPitches(),
                         duration: notes[i].getDuration() };
-    if (noteOptions.duration.indexOf('r') == -1
-        && 'clef' in this.options) {
-      // Is not a rest
+    if ('clef' in this.options) {
       noteOptions.clef = this.options.clef;
     }
     else
@@ -111,15 +109,15 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
         tiedNotes.push(vfNote);
         if (notes[i].tieType == 'stop') {
           // Tie each consecutive pair of notes
-          for (var i = 0; i + 1 < tiedNotes.length; i++)
+          for (var n = 0; n + 1 < tiedNotes.length; n++)
             this.vexflowObjects.push(new Vex.Flow.StaveTie({
-              first_note: tiedNotes[i],
-              last_note: tiedNotes[i+1],
+              first_note: tiedNotes[n],
+              last_note: tiedNotes[n+1],
               first_indices: [0], // FIXME: Chord support
               last_indices: [0],
             }));
+          tiedNotes = new Array();
         }
-        tiedNotes = new Array();
       }
     }
   }

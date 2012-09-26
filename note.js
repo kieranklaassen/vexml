@@ -54,14 +54,27 @@ Vex.ML.Note.prototype.init = function(element, options) {
     this.rest = true;
     if (restElem.getAttribute('measure') == 'yes')
       this.duration = '1r';
-    // Always interpret rests as treble clef
-    this.pitch = 'b/4';
+    this.pitch = this.pitchToString(restElem);
+    if (! this.pitch)
+      switch ('measure' in this.options ? this.options.measure.clef : 'treble') {
+        case 'bass':
+          this.pitch = 'd/3';
+          break;
+        case 'treble':
+        default:
+          this.pitch = 'b/4';
+          break;
+      }
   }
-  else this.rest = false;
-  var pitch = this.element.getElementsByTagName('pitch')[0];
-  if (! pitch)
-    { return undefined; }
-  this.pitch = this.pitchToString(pitch);
+  else {
+    this.rest = false;
+    var pitch = this.element.getElementsByTagName('pitch')[0];
+    if (! pitch) {
+      throw new Error("Non-rest <note> must have a <pitch> element");
+      return undefined;
+    }
+    this.pitch = this.pitchToString(pitch);
+  }
 
   // Symbolic note duration is usually stored as "note type"
   var noteType = this.element.getElementsByTagName('type')[0];
@@ -75,6 +88,13 @@ Vex.ML.Note.prototype.init = function(element, options) {
       this.duration += 'd';
     }
     this.numDots = dots.length;
+
+    // Append "r" for rests
+    if (this.rest) this.duration += 'r';
+  }
+  if (! this.duration) {
+    throw new Error("Note does not have a duration");
+    return undefined;
   }
   // Symbolic note accidental
   var accidental = this.element.getElementsByTagName('accidental')[0];
@@ -112,6 +132,8 @@ Vex.ML.Note.prototype.pitchToString = function(pitchElem) {
   var step = pitchElem.getElementsByTagName('step'),
       octave = pitchElem.getElementsByTagName('octave')
       alter = pitchElem.getElementsByTagName('alter');
+  if (! step.length) step = pitchElem.getElementsByTagName('display-step');
+  if (! octave.length) octave = pitchElem.getElementsByTagName('display-octave');
   if (step.length == 0 || octave.length == 0)
     return undefined;
   var octaveInt = parseInt(octave[0].textContent),

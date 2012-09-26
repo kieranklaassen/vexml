@@ -34,15 +34,14 @@ Vex.ML.Part.prototype.init = function(element, options) {
   for (var i = 0; i < this.measureElems.length; i++)
     if (i in this.measureElems) {
       var measure = this.measureElems[i];
-      var print = measure.getElementsByTagName('print')[0];
-      if (! print) break;
-      var staffLayouts = print.getElementsByTagName('staff-layout');
-      for (var j = 0; j < staffLayouts.length; j++) {
-        var layout = staffLayouts[j];
-        var staff_num = parseInt(layout.getAttribute('number'));
-        if (isNaN(staff_num)) continue;
+      var attr = measure.getElementsByTagName('attributes')[0];
+      if (! attr) break;
+      var stavesElem = attr.getElementsByTagName('staves')[0];
+      if (! stavesElem) break;
+      var numStaves = parseInt(stavesElem.textContent);
+      if (! numStaves || isNaN(numStaves) || numStaves == 1) break;
+      for (var staff_num = 1; staff_num < numStaves + 1; staff_num++)
         this.staves[staff_num] = new Vex.ML.PartStaff(this, {staff_num: staff_num});
-      }
       break;
     }
 
