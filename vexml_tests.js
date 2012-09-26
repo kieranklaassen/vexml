@@ -5,8 +5,9 @@ Vex.Flow.Test.VeXML.Start = function() {
   module('Basic Document');
   test('Simple Document Read', Vex.Flow.Test.VeXML.simpleTest);
   Vex.Flow.Test.runTest('Simple Document Draw', Vex.Flow.Test.VeXML.measureDrawTest);
-  module('Sample Document');
-  Vex.Flow.Test.runTest('Draw 2-Part Staff System', Vex.Flow.Test.VeXML.sample2PartStaffSystem);
+  module('Sample Documents');
+  Vex.Flow.Test.runTest('Sample Test (1)', Vex.Flow.Test.VeXML.sample2PartStaffSystem);
+  Vex.Flow.Test.runTest('Sample Test (2)', Vex.Flow.Test.VeXML.sampleBachStaffSystem);
 }
 
 Vex.Flow.Test.VeXML.simpleTest = function() {
@@ -63,3 +64,15 @@ Vex.Flow.Test.VeXML.sample2PartStaffSystem = function(options, contextBuilder) {
   staffSystem.drawContents(ctx);
   ok(true, 'Staff System Drawn');
 };
+
+Vex.Flow.Test.VeXML.sampleBachStaffSystem = function(options, contextBuilder) {
+  expect(2);
+  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Prelude_C_Major);
+  ok(doc && doc instanceof Vex.Flow.VeXML.Document, 'doc initialized');
+  var staffSystem = new Vex.Flow.VeXML.StaffSystem(doc, {x:20,y:0,width:2000});
+  var ctx = new contextBuilder(options.canvas_sel, 680, 120);
+  ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
+  staffSystem.draw(ctx);
+  staffSystem.drawContents(ctx);
+  ok(true, 'Staff System Drawn');
+}
