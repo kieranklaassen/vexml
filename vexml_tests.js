@@ -1,25 +1,25 @@
-if (! Vex.Flow.Test.VeXML)
-  Vex.Flow.Test.VeXML = {};
+if (! Vex.Flow.Test.MusicXML)
+  Vex.Flow.Test.MusicXML = {};
 
-Vex.Flow.Test.VeXML.Start = function() {
+Vex.Flow.Test.MusicXML.Start = function() {
   module('Basic Document');
-  test('Simple Document Read', Vex.Flow.Test.VeXML.simpleTest);
-  Vex.Flow.Test.runTest('Simple Document Draw', Vex.Flow.Test.VeXML.measureDrawTest);
+  test('Simple Document Read', Vex.Flow.Test.MusicXML.simpleTest);
+  Vex.Flow.Test.runTest('Simple Document Draw', Vex.Flow.Test.MusicXML.measureDrawTest);
   module('Sample Documents');
-  Vex.Flow.Test.runTest('Sample Test (1)', Vex.Flow.Test.VeXML.sample2PartStaffSystem);
-  Vex.Flow.Test.runTest('Sample Test (2)', Vex.Flow.Test.VeXML.sampleBachStaffSystem);
+  Vex.Flow.Test.runTest('Sample Test (1)', Vex.Flow.Test.MusicXML.sample2PartStaffSystem);
+  Vex.Flow.Test.runTest('Sample Test (2)', Vex.Flow.Test.MusicXML.sampleBachStaffSystem);
 }
 
-Vex.Flow.Test.VeXML.simpleTest = function() {
+Vex.Flow.Test.MusicXML.simpleTest = function() {
   expect(7);
-  var doc = new Vex.Flow.VeXML.Document('<score-partwise />');
+  var doc = new Vex.Flow.MusicXML.Document('<score-partwise />');
   if (doc.documentElement.nodeName != 'score-partwise') {
     ok(false, 'empty document failed:' + doc.documentElement);
     return;
   }
   ok(true, 'empty document passed');
-  var docString = Vex.Flow.Test.VeXML.Examples.Hello_World;
-  doc = new Vex.Flow.VeXML.Document(docString);
+  var docString = Vex.Flow.Test.MusicXML.Examples.Hello_World;
+  doc = new Vex.Flow.MusicXML.Document(docString);
   ok(true, 'simple document passed');
   var partIDs = doc.getPartIDs();
   if (partIDs.length != 1) {
@@ -36,8 +36,8 @@ Vex.Flow.Test.VeXML.simpleTest = function() {
   ok(notes[0].pitch == 'c/4', 'note pitch passed');
 };
 
-Vex.Flow.Test.VeXML.measureDrawTest = function(options, contextBuilder) {
-  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Hello_World);
+Vex.Flow.Test.MusicXML.measureDrawTest = function(options, contextBuilder) {
+  var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Hello_World);
   var ctx = new contextBuilder(options.canvas_sel, 500, 150);
   ctx.scale(0.9, 0.9); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   var stave = new Vex.Flow.Stave(10, 10, 520);
@@ -47,17 +47,17 @@ Vex.Flow.Test.VeXML.measureDrawTest = function(options, contextBuilder) {
   ok(true, 'Measure Drawn');
 }
 
-Vex.Flow.Test.VeXML.sample2PartStaffSystem = function(options, contextBuilder) {
+Vex.Flow.Test.MusicXML.sample2PartStaffSystem = function(options, contextBuilder) {
   expect(6);
-  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Apres_Un_Reve);
-  ok(doc && doc instanceof Vex.Flow.VeXML.Document, 'doc initialized');
+  var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Apres_Un_Reve);
+  ok(doc && doc instanceof Vex.Flow.MusicXML.Document, 'doc initialized');
   var partIDs = doc.getPartIDs();
   ok(partIDs.length == 2, 'doc has correct number of parts');
   var part2 = doc.getPart(partIDs[1]);
   ok(part2.getNumberOfMeasures() == 4, 'doc has correct number of measures');
   ok(part2.getNumberOfStaves() == 2, 'part has correct number of staffs');
   ok(doc.getTotalStaves() == 3, 'doc has correct number of staves');
-  var staffSystem = new Vex.Flow.VeXML.StaffSystem(doc, {x:20,y:0,width:1100});
+  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1100});
   var ctx = new contextBuilder(options.canvas_sel, 680, 200);
   ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);
@@ -65,11 +65,11 @@ Vex.Flow.Test.VeXML.sample2PartStaffSystem = function(options, contextBuilder) {
   ok(true, 'Staff System Drawn');
 };
 
-Vex.Flow.Test.VeXML.sampleBachStaffSystem = function(options, contextBuilder) {
+Vex.Flow.Test.MusicXML.sampleBachStaffSystem = function(options, contextBuilder) {
   expect(2);
-  var doc = new Vex.Flow.VeXML.Document(Vex.Flow.Test.VeXML.Examples.Prelude_C_Major);
-  ok(doc && doc instanceof Vex.Flow.VeXML.Document, 'doc initialized');
-  var staffSystem = new Vex.Flow.VeXML.StaffSystem(doc, {x:20,y:0,width:2000});
+  var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major);
+  ok(doc && doc instanceof Vex.Flow.MusicXML.Document, 'doc initialized');
+  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:2000});
   var ctx = new contextBuilder(options.canvas_sel, 680, 120);
   ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);

@@ -3,11 +3,11 @@
 //
 // StaffSystem - Draws all of the staffs on one line (a system.)
 
-Vex.Flow.VeXML.StaffSystem = function(doc, options) {
+Vex.ML.StaffSystem = function(doc, options) {
   if (arguments.length > 0) this.init(doc, options);
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.init = function(doc, options) {
+Vex.ML.StaffSystem.prototype.init = function(doc, options) {
   if (typeof options.width != 'number' || typeof options.x != 'number'
       || typeof options.y != 'number') {
     throw new Error('StaffSystem needs numeric x, y, and width options'); }
@@ -29,7 +29,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.init = function(doc, options) {
 
 // Get part and staff number within part as an array
 // Part and staff numbers are zero-indexed
-Vex.Flow.VeXML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
+Vex.ML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
   var stavesBefore = 0;
   var partIDs = this.document.getPartIDs();
   for (var i = 0; i < partIDs.length; i++) {
@@ -43,7 +43,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.partStaffForStaffNum = function(staffNum) {
 }
 
 // Return PartStaff object corresponding to the staff
-Vex.Flow.VeXML.StaffSystem.prototype.getPartStaff = function(staffNum) {
+Vex.ML.StaffSystem.prototype.getPartStaff = function(staffNum) {
   var partStaffNum = this.partStaffForStaffNum(staffNum);
   var part = this.document.getPart(partStaffNum[0]);
   if (! part) return undefined;
@@ -51,7 +51,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.getPartStaff = function(staffNum) {
   return staff;
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.getModifierArray = function(measureNum) {
+Vex.ML.StaffSystem.prototype.getModifierArray = function(measureNum) {
   // Create staves with a dummy width and the correct modifiers
   var modifierArray = new Array();
   var numStaves = this.document.getTotalStaves();
@@ -66,7 +66,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.getModifierArray = function(measureNum) {
   return modifierArray;
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.getEndMeasure = function() {
+Vex.ML.StaffSystem.prototype.getEndMeasure = function() {
   if (this.endMeasure) return this.endMeasure;
   
   // TODO: Actually calculate how many measures can fit based on the width.
@@ -74,7 +74,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.getEndMeasure = function() {
   return this.endMeasure;
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
+Vex.ML.StaffSystem.prototype.createStaves = function() {
   this.staves = new Array();
   // Indices of staves whose barlines should be connect to the staff below
   this.connectedBarlines = new Array();
@@ -126,13 +126,13 @@ Vex.Flow.VeXML.StaffSystem.prototype.createStaves = function() {
   }
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.getStaves = function() {
+Vex.ML.StaffSystem.prototype.getStaves = function() {
   if (! this.staves || ! this.staves.length)
     this.createStaves();
   return this.staves;
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.draw = function(context) {
+Vex.ML.StaffSystem.prototype.draw = function(context) {
   if (! this.staves || ! this.staves.length)
     this.createStaves();
 
@@ -182,7 +182,7 @@ Vex.Flow.VeXML.StaffSystem.prototype.draw = function(context) {
   this.getEndMeasure();
 }
 
-Vex.Flow.VeXML.StaffSystem.prototype.drawContents = function(context) {
+Vex.ML.StaffSystem.prototype.drawContents = function(context) {
   var partIDs = this.document.getPartIDs(),
       startStave = 0;
   for (var i = 0; i < partIDs.length; i++) {

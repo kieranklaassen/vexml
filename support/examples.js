@@ -1,8 +1,8 @@
-if (! Vex.Flow.Test.VeXML)
-  Vex.Flow.Test.VeXML = {};
-Vex.Flow.Test.VeXML.Examples = {};
+if (! Vex.Flow.Test.MusicXML)
+  Vex.Flow.Test.MusicXML = {};
+Vex.Flow.Test.MusicXML.Examples = {};
 
-Vex.Flow.Test.VeXML.Examples.Hello_World = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
+Vex.Flow.Test.MusicXML.Examples.Hello_World = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
 <!DOCTYPE score-partwise PUBLIC\
     "-//Recordare//DTD MusicXML 3.0 Partwise//EN"\
     "http://www.musicxml.org/dtds/partwise.dtd">\
@@ -40,7 +40,7 @@ Vex.Flow.Test.VeXML.Examples.Hello_World = '<?xml version="1.0" encoding="UTF-8"
   </part>\
 </score-partwise>';
 
-Vex.Flow.Test.VeXML.Examples.Apres_Un_Reve = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
+Vex.Flow.Test.MusicXML.Examples.Apres_Un_Reve = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 3.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\
 <score-partwise version="3.0">\
   <movement-title>Après un rêve</movement-title>\
@@ -1619,7 +1619,7 @@ Vex.Flow.Test.VeXML.Examples.Apres_Un_Reve = '<?xml version="1.0" encoding="UTF-
   <!--=========================================================-->\
 </score-partwise>';
 
-Vex.Flow.Test.VeXML.Examples.Prelude_C_Major = '<?xml version="1.0" encoding="UTF-8"?>\
+Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major = '<?xml version="1.0" encoding="UTF-8"?>\
 <!DOCTYPE score-partwise PUBLIC "-//Recordare//DTD MusicXML 2.0 Partwise//EN" "http://www.musicxml.org/dtds/partwise.dtd">\
 <score-partwise>\
   <identification>\

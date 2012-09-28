@@ -1,7 +1,7 @@
 // VeXML
 // Copyright (c) 2012 Daniel Ringwalt
 
-Vex.Flow.VeXML = {};
+Vex.Flow.MusicXML = {};
 
 // Alias
-Vex.ML = Vex.Flow.VeXML;
+Vex.ML = Vex.Flow.MusicXML;
