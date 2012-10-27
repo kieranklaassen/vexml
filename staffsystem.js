@@ -1,7 +1,7 @@
 // VeXML
 // Copyright (c) 2012 Daniel Ringwalt
 //
-// StaffSystem - Draws all of the staffs on one line (a system.)
+// StaffSystem - Draws one line of music (a system of staffs.)
 
 Vex.ML.StaffSystem = function(doc, options) {
   if (arguments.length > 0) this.init(doc, options);
@@ -15,16 +15,26 @@ Vex.ML.StaffSystem.prototype.init = function(doc, options) {
   this.x = options.x;
   this.y = options.y;
   this.options = {
-    startMeasure: 1,
+    start_measure: 1,
     inter_staff_space: 0 // Stave includes padding
   };
   Vex.Merge(this.options, options);
   if (! this.options.numberOfStaves)
     this.options.numberOfStaves = doc.getTotalStaves();
-  this.startMeasure = this.options.startMeasure;
+  this.start_measure = this.options.start_measure;
+  if ('end_measure' in this.options && this.options.end_measure
+      && this.options.end_measure >= this.start_measure)
+    this.end_measure = this.options.end_measure;
+  else
+    this.end_measure = null;
   this.document = doc;
   this.staves = new Array();
   this.staveHeight = (new Vex.Flow.Stave(0,0,100)).getHeight();
+
+  // Arrays of arrays indexed by measure, then voice
+  this.voices = new Array();
+  this.vexflowVoices = new Array();
+  this.voiceStaves = new Array(); // Map voice at index to index of a stave
 }
 
 // Get part and staff number within part as an array
@@ -52,26 +62,86 @@ Vex.ML.StaffSystem.prototype.getPartStaff = function(staffNum) {
 }
 
 Vex.ML.StaffSystem.prototype.getModifierArray = function(measureNum) {
-  // Create staves with a dummy width and the correct modifiers
   var modifierArray = new Array();
   var numStaves = this.document.getTotalStaves();
   for (var i = 0; i < numStaves; i++) {
-    //var stave = new Vex.Flow.Stave(0, 0, 500);
     var partStaffNum = this.partStaffForStaffNum(i);
     var partStaff = this.document.getPart(partStaffNum[0]).getStaff(partStaffNum[1]+1);
     var measure = partStaff.getMeasure(measureNum);
-    var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.startMeasure)});
+    var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.start_measure)});
     modifierArray.push(modifiers);
   }
   return modifierArray;
 }
 
+// Creates and formats the voices in each measure to the full width, until no more
+// measures can fit (determined by their minWidth.)
+// Required to determine end_measure if it was not specified.
+Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
+  var lastMeasure = this.document.getPart(0).getNumberOfMeasures();
+  if (this.end_measure && this.end_measure >= this.start_measure)
+    lastMeasure = this.end_measure;
+      
+  var partIDs = this.document.getPartIDs();
+  var totalMinWidth = 0;
+  for (var i = 0; i < lastMeasure - this.start_measure; i++) {
+    if (! (i in this.voices)) {
+      this.voices[i] = new Array();
+      this.vexflowVoices[i] = new Array();
+      this.voiceStaves[i] = new Array();
+    }
+    
+    var startStave = 0;
+    var totalStaves = 0;
+    for (var j = 0; j < partIDs.length; j++) {
+      var part = this.document.getPart(j),
+          numStaves = part.getNumberOfStaves();
+      for (var stave = startStave; stave < startStave + numStaves; stave++) {
+        var partStaff = part.getStaff(stave + 1 - startStave);
+        var staffMeasure = partStaff.getMeasure(this.options.start_measure + i);
+        var voiceNums = staffMeasure.getVoiceNumbers();
+        for (var k = 0; k < voiceNums.length; k++) {
+          var voice = staffMeasure.getVoice(voiceNums[k]);
+          this.voices[i].push(voice);
+          this.vexflowVoices[i].push(voice.createVexflowVoice());
+          this.voiceStaves[i].push(stave);
+        }
+      }
+      startStave += numStaves;
+      totalStaves += numStaves;
+    }
+
+    // Create dummy staves for formatting to calculate min width
+    var dummyStaves = new Array();
+    for (var staveNum = 0; staveNum < totalStaves; staveNum++)
+      dummyStaves[staveNum] = new Vex.Flow.Stave(0, staveNum*100, this.width);
+    for (var v = 0; v < this.voices[i].length; v++) {
+      var vexmlVoice = this.voices[i][v];
+      vexmlVoice.setVexflowStave(dummyStaves[this.voiceStaves[i][v]]);
+    }
+    var formatter = new Vex.Flow.Formatter().joinVoices(this.vexflowVoices[i]);
+    formatter.format(this.vexflowVoices[i], this.width);
+    var additionalWidth = formatter.getMinTotalWidth() + 40;
+    if (additionalWidth + totalMinWidth > this.width) {
+      delete this.voices[i];
+      delete this.vexflowVoices[i];
+      delete this.voiceStaves[i];
+      if (!this.end_measure) this.end_measure = this.start_measure;
+      break;
+    }
+    else {
+      totalMinWidth += additionalWidth;
+      this.end_measure = this.start_measure + i;
+    }
+  }
+}
+
 Vex.ML.StaffSystem.prototype.getEndMeasure = function() {
-  if (this.endMeasure) return this.endMeasure;
+  if (this.end_measure && this.end_measure >= this.start_measure)
+    return this.end_measure;
   
-  // TODO: Actually calculate how many measures can fit based on the width.
-  this.endMeasure = this.startMeasure + 3;
-  return this.endMeasure;
+  this.createVoicesAndFormatters();
+  return this.end_measure;
 }
 
 Vex.ML.StaffSystem.prototype.createStaves = function() {
@@ -100,23 +170,23 @@ Vex.ML.StaffSystem.prototype.createStaves = function() {
   var measureWidths = new Array(), totalWidth = 0;
   this.getEndMeasure();
   // TODO: Actually come up with a good measure width
-  for (var i = 0; i <= this.endMeasure - this.startMeasure; i++) {
-    measureWidths[i] = Math.floor(this.width / (this.endMeasure - this.startMeasure + 1));
+  for (var i = 0; i <= this.end_measure - this.start_measure; i++) {
+    measureWidths[i] = Math.floor(this.width / (this.end_measure - this.start_measure + 1));
     totalWidth += measureWidths[i];
   }
   // Add remainder to the first measure
   measureWidths[0] += this.width - totalWidth;
   
   var origin = this.x;
-  for (var i = 0; i <= this.endMeasure - this.startMeasure; i++) {
+  for (var i = 0; i <= this.end_measure - this.start_measure; i++) {
     // Array of Staves for each staff
     this.staves[i] = new Array();
-    var measureModifiers = this.getModifierArray(i+this.startMeasure);
+    var measureModifiers = this.getModifierArray(i+this.start_measure);
     for (var j = 0; j < this.options.numberOfStaves; j++) {
       var yOrigin = j * (this.staveHeight + this.options.inter_staff_space);
       this.staves[i][j] = new Vex.Flow.Stave(origin, yOrigin, measureWidths[i]);
       // Get Measure to find clef
-      var staffMeasure = this.getPartStaff(j).getMeasure(i+this.startMeasure);
+      var staffMeasure = this.getPartStaff(j).getMeasure(i+this.start_measure);
       if (staffMeasure.clef)
         this.staves[i][j].clef = staffMeasure.clef;
       for (var k = 0; k < measureModifiers[j].length; k++)
@@ -177,9 +247,6 @@ Vex.ML.StaffSystem.prototype.draw = function(context) {
                                             this.staves[0][connInfo.bottom_stave]);
     connector.setType(connInfo.type).setContext(context).draw();
   }
-
-
-  this.getEndMeasure();
 }
 
 Vex.ML.StaffSystem.prototype.drawContents = function(context) {
@@ -194,8 +261,9 @@ Vex.ML.StaffSystem.prototype.drawContents = function(context) {
       for (var k = startStave; k < startStave + numStaves; k++)
         partStaves[partStaves.length-1].push(this.staves[j][k]);
     }
-    part.engraveMeasuresOnStaves(1,3, partStaves, context);
+    part.engraveMeasuresOnStaves(this.start_measure,
+                                 this.end_measure,
+                                 partStaves, context);
     startStave += numStaves;
   }
-  //this.document.getPart(1).engraveMeasuresOnStaves(1,3,this.getStaves(),context);
 }

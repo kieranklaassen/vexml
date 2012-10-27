@@ -136,10 +136,19 @@ Vex.ML.Voice.prototype.createVexflowVoice = function(measureNum, options) {
     voiceOptions.clef = measure.clef;
   Vex.Merge(voiceOptions, options);
   this.vexflowVoice = new Vex.Flow.Voice(voiceOptions);
-  for (var i = 0; i < this.vexflowNotes.length; i++)
-    this.vexflowNotes[i].setStave(options.stave);
+  if (options && 'stave' in options)
+    for (var i = 0; i < this.vexflowNotes.length; i++)
+      this.vexflowNotes[i].setStave(options.stave);
   this.vexflowVoice.setStrict(false).addTickables(this.vexflowNotes);
   return this.vexflowVoice;
+}
+
+Vex.ML.Voice.prototype.setVexflowStave = function(stave) {
+  if (this.vexflowVoice) {
+    var tickables = this.vexflowVoice.tickables;
+    for (var i = 0; i < tickables.length; i++)
+      tickables[i].setStave(stave);
+  }
 }
 
 Vex.ML.Voice.prototype.drawVexflow = function(measureNum, context, stave) {
