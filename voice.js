@@ -79,6 +79,8 @@ Vex.ML.Voice.prototype.createVexflowNotes = function(measureNum) {
     else
       undefined;
     var vfNote = new Vex.Flow.StaveNote(noteOptions);
+    // Force set number of ticks so that formatting, etc. is correct
+    if (notes[i].numTicks) vfNote.ticks = notes[i].numTicks;
 
     // Add dots
     for (var d = 0; d < notes[i].numDots; d++)
