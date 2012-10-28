@@ -69,7 +69,7 @@ Vex.Flow.Test.MusicXML.sampleBachStaffSystem = function(options, contextBuilder)
   expect(2);
   var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major);
   ok(doc && doc instanceof Vex.Flow.MusicXML.Document, 'doc initialized');
-  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1000});
+  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1500});
   var ctx = new contextBuilder(options.canvas_sel, 680, 120);
   ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);

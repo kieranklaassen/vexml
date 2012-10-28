@@ -28,13 +28,21 @@ Vex.ML.StaffSystem.prototype.init = function(doc, options) {
   else
     this.end_measure = null;
   this.document = doc;
-  this.staves = new Array();
   this.staveHeight = (new Vex.Flow.Stave(0,0,100)).getHeight();
 
   // Arrays of arrays indexed by measure, then voice
+  this.staves = new Array();
+  this.stavesStartX = new Array();
+  this.stavesEndX = new Array();
   this.voices = new Array();
   this.vexflowVoices = new Array();
   this.voiceStaves = new Array(); // Map voice at index to index of a stave
+
+  // Flat arrays for each measure
+  this.formatters = new Array();
+  this.minWidths = new Array();
+  this.minActualWidths = new Array(); // Actual width when formatting to min width
+  this.additionalWidths = new Array(); // Additional width of measure from modifiers
 }
 
 // Get part and staff number within part as an array
@@ -89,6 +97,8 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       this.voices[i] = new Array();
       this.vexflowVoices[i] = new Array();
       this.voiceStaves[i] = new Array();
+      this.stavesStartX[i] = new Array();
+      this.stavesEndX[i] = new Array();
     }
     
     var startStave = 0;
@@ -113,16 +123,42 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
 
     // Create dummy staves for formatting to calculate min width
     var dummyStaves = new Array();
-    for (var staveNum = 0; staveNum < totalStaves; staveNum++)
+    var modifiers = this.getModifierArray(this.start_measure + i);
+    for (var staveNum = 0; staveNum < totalStaves; staveNum++) {
       dummyStaves[staveNum] = new Vex.Flow.Stave(0, staveNum*100, this.width);
+      for (var modifier = 0; modifier < modifiers[staveNum].length; modifier++)
+        dummyStaves[staveNum].addModifier(modifiers[staveNum][modifier]);
+      this.stavesStartX[i][staveNum] = dummyStaves[staveNum].getNoteStartX();
+      this.stavesEndX[i][staveNum] = dummyStaves[staveNum].getNoteEndX();
+    }
+    var noteWidth = this.stavesEndX[i][0] - this.stavesStartX[i][0];
+    for (var staveNum = 1; staveNum < totalStaves; staveNum++)
+      if (noteWidth > this.stavesEndX[i][staveNum] - this.stavesStartX[i][staveNum])
+          noteWidth = this.stavesEndX[i][staveNum] - this.stavesStartX[i][staveNum];
+    this.additionalWidths[i] = this.width - noteWidth;
+    
     for (var v = 0; v < this.voices[i].length; v++) {
       var vexmlVoice = this.voices[i][v];
       vexmlVoice.setVexflowStave(dummyStaves[this.voiceStaves[i][v]]);
     }
-    var formatter = new Vex.Flow.Formatter().joinVoices(this.vexflowVoices[i]);
-    formatter.format(this.vexflowVoices[i], this.width);
-    var additionalWidth = formatter.getMinTotalWidth() + 40;
-    if (additionalWidth + totalMinWidth > this.width) {
+    this.formatters[i] = new Vex.Flow.Formatter().joinVoices(this.vexflowVoices[i]);
+    this.formatters[i].format(this.vexflowVoices[i], noteWidth);
+
+    // Re-format to min width
+    this.minWidths[i] = this.formatters[i].getMinTotalWidth();
+    this.formatters[i].format(this.vexflowVoices[i], this.minWidths[i]);
+    // Find x of farthest right tickable from each voice
+    var maxX = 0;
+    for (var v = 0; v < this.vexflowVoices[i].length; v++) {
+      var tickables = this.vexflowVoices[i][v].tickables;
+      var x = tickables[tickables.length - 1].getX();
+      if (x > maxX) maxX = x;
+    }
+    maxX += 10;
+    this.minActualWidths[i] = maxX;
+
+    var measureWidth = maxX + this.additionalWidths[i];
+    if (measureWidth + totalMinWidth > this.width) {
       delete this.voices[i];
       delete this.vexflowVoices[i];
       delete this.voiceStaves[i];
@@ -130,7 +166,7 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       break;
     }
     else {
-      totalMinWidth += additionalWidth;
+      totalMinWidth += measureWidth;
       this.end_measure = this.start_measure + i;
     }
   }
@@ -252,18 +288,23 @@ Vex.ML.StaffSystem.prototype.draw = function(context) {
 Vex.ML.StaffSystem.prototype.drawContents = function(context) {
   var partIDs = this.document.getPartIDs(),
       startStave = 0;
-  for (var i = 0; i < partIDs.length; i++) {
-    var part = this.document.getPart(i);
-    var partStaves = new Array();
-    var numStaves = part.getNumberOfStaves();
-    for (var j = 0; j < this.staves.length; j++) {
-      partStaves.push(new Array());
-      for (var k = startStave; k < startStave + numStaves; k++)
-        partStaves[partStaves.length-1].push(this.staves[j][k]);
-    }
-    part.engraveMeasuresOnStaves(this.start_measure,
-                                 this.end_measure,
-                                 partStaves, context);
-    startStave += numStaves;
+  for (var m = 0; m < this.staves.length; m++) {
+    var voices = this.voices[m],
+        vfVoices = this.vexflowVoices[m],
+        staves = this.staves[m];
+    for (var v = 0; v < voices.length; v++)
+      voices[v].setVexflowStave(staves[this.voiceStaves[m][v]]);
+
+    var formatter = this.formatters[m],
+        staveWidth = staves[0].width,
+        width;
+    if (staveWidth <= this.minActualWidths[m] + 10)
+      width = this.minWidths[m];
+    else
+      width = staves[0].getNoteEndX() - staves[0].getNoteStartX();
+    formatter.format(vfVoices, width);
+
+    for (var v = 0; v < voices.length; v++)
+      voices[v].drawVexflow(undefined, context, staves[this.voiceStaves[m][v]]);
   }
 }
