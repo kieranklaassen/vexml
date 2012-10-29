@@ -154,14 +154,14 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       var x = tickables[tickables.length - 1].getX();
       if (x > maxX) maxX = x;
     }
-    maxX += 10;
+    maxX += 30;
     this.minActualWidths[i] = maxX;
 
     var measureWidth = maxX + this.additionalWidths[i];
     if (measureWidth + totalMinWidth > this.width) {
-      delete this.voices[i];
-      delete this.vexflowVoices[i];
-      delete this.voiceStaves[i];
+      this.voices.splice(i-1, 1);
+      this.vexflowVoices.splice(i-1, 1);
+      this.voiceStaves.splice(i-1, 1);
       if (!this.end_measure) this.end_measure = this.start_measure;
       break;
     }
@@ -203,15 +203,23 @@ Vex.ML.StaffSystem.prototype.createStaves = function() {
     stavesAbove += numStaves;
   }
 
-  var measureWidths = new Array(), totalWidth = 0;
   this.getEndMeasure();
-  // TODO: Actually come up with a good measure width
-  for (var i = 0; i <= this.end_measure - this.start_measure; i++) {
-    measureWidths[i] = Math.floor(this.width / (this.end_measure - this.start_measure + 1));
+  var measureWidths = new Array(), totalWidth = 0;
+  for (var i = 0; i < this.voices.length; i++) {
+    // Add the width of any modifiers and the minimum width to each measure
+    measureWidths[i] = Math.ceil(this.additionalWidths[i] + this.minActualWidths[i]);
     totalWidth += measureWidths[i];
   }
-  // Add remainder to the first measure
-  measureWidths[0] += this.width - totalWidth;
+  // Divide the rest evenly
+  if (this.width > totalWidth) {
+    var addedWidth = Math.floor((this.width - totalWidth) / measureWidths.length);
+    for (var i = 0; i < measureWidths.length; i++)
+      measureWidths[i] += addedWidth;
+    totalWidth += measureWidths.length * addedWidth;
+    // Add remainder to the first measure
+    measureWidths[0] += this.width - totalWidth;
+  }
+  // What should we do if the total width is already more than it should be?
   
   var origin = this.x;
   for (var i = 0; i <= this.end_measure - this.start_measure; i++) {
@@ -298,10 +306,14 @@ Vex.ML.StaffSystem.prototype.drawContents = function(context) {
     var formatter = this.formatters[m],
         staveWidth = staves[0].width,
         width;
-    if (staveWidth <= this.minActualWidths[m] + 10)
+    if (staveWidth - this.additionalWidths[m] <= this.minActualWidths[m] + 10)
       width = this.minWidths[m];
-    else
+    else {
       width = staves[0].getNoteEndX() - staves[0].getNoteStartX();
+      if (this.minActualWidths[m] > this.minWidths[m])
+        width += this.minWidths[m] - this.minActualWidths[m];
+      if (width < this.minWidths[m]) width = this.minWidths[m];
+    }
     formatter.format(vfVoices, width);
 
     for (var v = 0; v < voices.length; v++)

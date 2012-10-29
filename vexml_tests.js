@@ -57,9 +57,9 @@ Vex.Flow.Test.MusicXML.sample2PartStaffSystem = function(options, contextBuilder
   ok(part2.getNumberOfMeasures() == 4, 'doc has correct number of measures');
   ok(part2.getNumberOfStaves() == 2, 'part has correct number of staffs');
   ok(doc.getTotalStaves() == 3, 'doc has correct number of staves');
-  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1100});
-  var ctx = new contextBuilder(options.canvas_sel, 680, 200);
-  ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
+  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:850});
+  var ctx = new contextBuilder(options.canvas_sel, 720, 250);
+  ctx.scale(0.8, 0.8); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);
   staffSystem.drawContents(ctx);
   ok(true, 'Staff System Drawn');
@@ -69,8 +69,8 @@ Vex.Flow.Test.MusicXML.sampleBachStaffSystem = function(options, contextBuilder)
   expect(2);
   var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major);
   ok(doc && doc instanceof Vex.Flow.MusicXML.Document, 'doc initialized');
-  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1500});
-  var ctx = new contextBuilder(options.canvas_sel, 680, 120);
+  var staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, {x:20,y:0,width:1150});
+  var ctx = new contextBuilder(options.canvas_sel, 720, 120);
   ctx.scale(0.6, 0.6); ctx.setFillStyle('#221'); ctx.setStrokeStyle('#221');
   staffSystem.draw(ctx);
   staffSystem.drawContents(ctx);
