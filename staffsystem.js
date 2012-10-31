@@ -75,8 +75,12 @@ Vex.ML.StaffSystem.prototype.getModifierArray = function(measureNum) {
   for (var i = 0; i < numStaves; i++) {
     var partStaffNum = this.partStaffForStaffNum(i);
     var partStaff = this.document.getPart(partStaffNum[0]).getStaff(partStaffNum[1]+1);
-    var measure = partStaff.getMeasure(measureNum);
-    var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.start_measure)});
+    //var measure = partStaff.getMeasure(measureNum);
+    //var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.start_measure)});
+    var modifiers = partStaff.getAttributes(measureNum).getStaveModifiers(
+      {line_start: (measureNum == this.start_measure),
+       start_measure: (measureNum == 1)
+      });
     modifierArray.push(modifiers);
   }
   return modifierArray;
@@ -92,7 +96,7 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       
   var partIDs = this.document.getPartIDs();
   var totalMinWidth = 0;
-  for (var i = 0; i < lastMeasure - this.start_measure; i++) {
+  for (var i = 0; i <= lastMeasure - this.start_measure; i++) {
     if (! (i in this.voices)) {
       this.voices[i] = new Array();
       this.vexflowVoices[i] = new Array();
@@ -159,9 +163,9 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
 
     var measureWidth = maxX + this.additionalWidths[i];
     if (measureWidth + totalMinWidth > this.width) {
-      this.voices.splice(i-1, 1);
-      this.vexflowVoices.splice(i-1, 1);
-      this.voiceStaves.splice(i-1, 1);
+      this.voices.splice(i, 1);
+      this.vexflowVoices.splice(i, 1);
+      this.voiceStaves.splice(i, 1);
       if (!this.end_measure) this.end_measure = this.start_measure;
       break;
     }

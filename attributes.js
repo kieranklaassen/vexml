@@ -20,8 +20,29 @@ Vex.ML.Attributes.superclass = Vex.ML.Element;
 Vex.ML.Attributes.constructor = Vex.ML.Part;
 Vex.ML.Attributes.prototype.nodeName = 'attributes';
 
+Vex.ML.Attributes.prototype.addAttribute = function(attr, attrTag, attrFunction) {
+  var elements = this.element.getElementsByTagName(attrTag);
+  if (elements.length == 1)
+    this.attributes[attr] = attrFunction(elements[0]);
+  else if (elements.length == 0 && ! (attr in this.attributes))
+    this.attributes[attr] = null;
+  else if (elements.length > 1) {
+    this.attributes[attr] = new Array();
+    for (var i = 0; i < elements.length; i++) {
+      var num = parseInt(elements[i].getAttribute('number'));
+      if (isNaN(num)) continue;
+      this.attributes[attr][num] = attrFunction(elements[i]);
+    }
+  }
+}
 Vex.ML.Attributes.prototype.init = function(element, options) {
-  if (element.tagName == 'attributes') {
+  if (element == undefined) {
+    if (! 'previous_attribute' in options) return undefined;
+    // Don't use Element's init method
+    this.options = {};
+    Vex.Merge(this.options, options);
+  }
+  else if (element.tagName == 'attributes') {
     // Use attributes element directly
     this.constructor.prototype.init.call(this, element, options);
   }
@@ -39,7 +60,9 @@ Vex.ML.Attributes.prototype.init = function(element, options) {
       this.options.previous_attributes instanceof Vex.ML.Attributes)
     Vex.Merge(this.attributes, this.options.previous_attributes.attributes);
 
-  var clefs = this.element.getElementsByTagName('clef');
+  this.addAttribute('clef', 'clef', Vex.ML.Attributes.Clef);
+  this.addAttribute('time', 'time', Vex.ML.Attributes.Time);
+  /*var clefs = this.element.getElementsByTagName('clef');
   if (clefs.length == 1) {
     this.attributes.clef = Vex.ML.Attributes.Clef(clefs[0]);
   }
@@ -54,7 +77,7 @@ Vex.ML.Attributes.prototype.init = function(element, options) {
         Vex.ML.Attributes.Clef(clefs[i]);
     }
   }
-  if (clefs.length) this.new_attributes.push('clef');
+  if (clefs.length) this.new_attributes.push('clef');*/
 
   return this;
 }
@@ -84,6 +107,24 @@ Vex.ML.Attributes.prototype.getClef = function() {
     return this.attributes.clef;
   else
     return undefined;
+}
+
+// Return a list of VexFlow stave modifiers
+// (Must have been created from a Measure derived from a PartStaff)
+Vex.ML.Attributes.prototype.getStaveModifiers = function(opts) {
+  var options = {};
+  Vex.Merge(options, opts);
+  var modifiers = new Array();
+  if (options['line_start']) {
+    if (this.getClef()) modifiers.push(new Vex.Flow.Clef(this.getClef()));
+    if (this.attributes.key)
+      modifiers.push(new Vex.Flow.KeySignature(this.attributes.key.pitch));
+  }
+  if (options['start_measure']) {
+    if (this.attributes.time)
+      modifiers.push(new Vex.Flow.TimeSignature(this.attributes.time.symbol));
+  }
+  return modifiers;
 }
 
 Vex.ML.Attributes.Clef = function(clefElem) {

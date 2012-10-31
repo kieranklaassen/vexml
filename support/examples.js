@@ -1,3 +1,5 @@
+if (! Vex.Flow.Test)
+  Vex.Flow.Test = {};
 if (! Vex.Flow.Test.MusicXML)
   Vex.Flow.Test.MusicXML = {};
 Vex.Flow.Test.MusicXML.Examples = {};
