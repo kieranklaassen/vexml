@@ -20,6 +20,9 @@ Vex.ML.Chord.prototype.init = function(firstNote, options) {
 
 Vex.ML.Chord.prototype.addNote = function(note) {
   Array.prototype.push.apply(this.pitches, note.getPitches());
+  var pitches = note.getPitches();
+  for (var i = 0; i < pitches.length; i++)
+    this.pitches.push(pitches[i]);
 }
 
 Vex.ML.Chord.prototype.setPitches = function(pitches) {

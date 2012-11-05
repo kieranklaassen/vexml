@@ -90,7 +90,8 @@ Vex.ML.PartStaff.prototype.getMeasure = function(measureNum, options) {
           if (node.getElementsByTagName('chord').length == 0) {
             chordElements = new Array();
             var beam = node.getElementsByTagName('beam');
-            Array.prototype.push.apply(chordElements, beam);
+            for (var b = 0; b < beam.length; b++)
+              chordElements.push(beam[b]);
           }
         }
         continue;

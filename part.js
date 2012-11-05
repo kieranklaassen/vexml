@@ -70,9 +70,9 @@ Vex.ML.Part.prototype.getAttributes = function(measureNum, options) {
 
       // If there are multiple <attributes> tags, create a new Attributes object
       // for each one, and set lastAttrs to the last one.
-      for (var i = 1; i < attrs.length; i++) {
+      for (var j = 1; j < attrs.length; i++) {
         var options = {previous_attributes: lastAttrs};
-        lastAttrs = new Vex.ML.Attributes(attrs[0], options);
+        lastAttrs = new Vex.ML.Attributes(attrs[j], options);
       }
     }
     else {

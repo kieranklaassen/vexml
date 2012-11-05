@@ -75,11 +75,10 @@ Vex.ML.StaffSystem.prototype.getModifierArray = function(measureNum) {
   for (var i = 0; i < numStaves; i++) {
     var partStaffNum = this.partStaffForStaffNum(i);
     var partStaff = this.document.getPart(partStaffNum[0]).getStaff(partStaffNum[1]+1);
-    //var measure = partStaff.getMeasure(measureNum);
-    //var modifiers = measure.getStaveModifiers({line_start: (measureNum == this.start_measure)});
     var modifiers = partStaff.getAttributes(measureNum).getStaveModifiers(
       {line_start: (measureNum == this.start_measure),
-       start_measure: (measureNum == 1)
+       // CAVEAT: broken when only the pickup measure is on one line
+       start_measure: (measureNum <= 1 && measureNum == this.start_measure)
       });
     modifierArray.push(modifiers);
   }
@@ -231,7 +230,7 @@ Vex.ML.StaffSystem.prototype.createStaves = function() {
     this.staves[i] = new Array();
     var measureModifiers = this.getModifierArray(i+this.start_measure);
     for (var j = 0; j < this.options.numberOfStaves; j++) {
-      var yOrigin = j * (this.staveHeight + this.options.inter_staff_space);
+      var yOrigin = this.y + j*(this.staveHeight + this.options.inter_staff_space);
       this.staves[i][j] = new Vex.Flow.Stave(origin, yOrigin, measureWidths[i]);
       // Get Measure to find clef
       var staffMeasure = this.getPartStaff(j).getMeasure(i+this.start_measure);
@@ -248,6 +247,12 @@ Vex.ML.StaffSystem.prototype.getStaves = function() {
   if (! this.staves || ! this.staves.length)
     this.createStaves();
   return this.staves;
+}
+
+Vex.ML.StaffSystem.prototype.getHeight = function() {
+  this.getStaves();
+  var bottomStave = this.staves[0][this.staves[0].length - 1];
+  return bottomStave.y + bottomStave.getHeight();
 }
 
 Vex.ML.StaffSystem.prototype.draw = function(context) {

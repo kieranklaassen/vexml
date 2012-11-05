@@ -17,7 +17,7 @@ Vex.ML.Attributes = function(element, options) {
 // Inherits from Vex.ML.Element
 Vex.ML.Attributes.prototype = new Vex.ML.Element();
 Vex.ML.Attributes.superclass = Vex.ML.Element;
-Vex.ML.Attributes.constructor = Vex.ML.Part;
+Vex.ML.Attributes.constructor = Vex.ML.Attributes;
 Vex.ML.Attributes.prototype.nodeName = 'attributes';
 
 Vex.ML.Attributes.prototype.addAttribute = function(attr, attrTag, attrFunction) {
@@ -62,22 +62,6 @@ Vex.ML.Attributes.prototype.init = function(element, options) {
 
   this.addAttribute('clef', 'clef', Vex.ML.Attributes.Clef);
   this.addAttribute('time', 'time', Vex.ML.Attributes.Time);
-  /*var clefs = this.element.getElementsByTagName('clef');
-  if (clefs.length == 1) {
-    this.attributes.clef = Vex.ML.Attributes.Clef(clefs[0]);
-  }
-  else if (clefs.length > 1) {
-    if (! ('clef' in this.attributes) || typeof(this.attributes.clef) == 'string')
-      this.attributes.clef = new Array();
-    for (var i = 0; i < clefs.length; i++) {
-      if (! clefs[i].getAttribute('number')
-          || isNaN(parseInt(clefs[i].getAttribute('number'))))
-        continue;
-      this.attributes.clef[parseInt(clefs[i].getAttribute('number'))] =
-        Vex.ML.Attributes.Clef(clefs[i]);
-    }
-  }
-  if (clefs.length) this.new_attributes.push('clef');*/
 
   return this;
 }
