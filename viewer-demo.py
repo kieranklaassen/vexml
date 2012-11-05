@@ -22,12 +22,13 @@ class RequestHandler(SimpleHTTPRequestHandler):
     path = posixpath.normpath(urllib.unquote(path.split('?',1)[0].split('#',1)[0]))
     if path[0] == '/': path = path[1:]
 
-    # Use 'viewer.html' as index
+    # Use 'viewer-ajax.html' as index
     if path == '':
-      return 'viewer.html'
+      return 'viewer-ajax.html'
 
     for search_path in SEARCH_PATHS:
       full_path = os.path.join(search_path, path)
+      print full_path
       if os.path.isfile(full_path):
         return full_path
     return path

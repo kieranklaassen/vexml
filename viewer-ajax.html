@@ -24,10 +24,31 @@
     <script src="./viewer.js"></script>
 
     <script>
+      // source: http://stackoverflow.com/a/901144
+      function getParameter(name) {
+        name = name.replace(/\[]/, "\\\[").replace(/[\]]/, "\\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+        var results = regex.exec(window.location.search);
+        if (results == null) return undefined;
+        else return decodeURIComponent(results[1].replace(/\+/g, " "));
+      }
+
       var VexFlow_Viewer = null;
       $(document).ready(function() {
-        var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major);
-        VexFlow_Viewer = new Vex.Flow.MusicXML.Viewer($('.vexml_viewer')[0], doc);
+        var req = new XMLHttpRequest();
+        var uri = getParameter('doc');
+        if (! uri) uri = 'bwv846p.xml';
+        if (uri.indexOf('/') == -1) {
+          // Relative URL in the "support" subdirectory
+          uri = 'support/' + uri;
+        }
+        req.open('GET', uri, true);
+        req.onreadystatechange = function() {
+          if (req.readyState != 4) return;
+          var doc = new Vex.Flow.MusicXML.Document(req.responseText);
+          VexFlow_Viewer = new Vex.Flow.MusicXML.Viewer($('.vexml_viewer')[0], doc);
+        };
+        req.send(null);
       });
     </script>
   </head>

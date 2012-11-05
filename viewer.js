@@ -1,9 +1,27 @@
+// VeXML
+// Copyright (c) 2012 Daniel Ringwalt
+//
+// Viewer - Simple multi-line music viewer using VexFlow
+// Requires VexFlow, JQuery. See viewer.html
+
+// Wraps a StaffSystem that draws in a particular <canvas> element
+Vex.Flow.MusicXML.CanvasViewer = function(doc, staffsystem_options) {
+  staffsystem_options.x = 20;
+  staffsystem_options.y = 50;
+  staffsystem_options.width = 600;
+  this.staffSystem = new Vex.Flow.MusicXML.StaffSystem(doc, staffsystem_options);
+  this.viewportWidth = 800;
+  this.zoom = 0.8;
+}
+
+// Takes a <div> element and MusicXML.Document and displays the document
 Vex.Flow.MusicXML.Viewer = function(element, doc) {
   if (arguments.length > 0) this.init(element, doc);
 };
 Vex.ML.Viewer.prototype.init = function(element, doc) {
   this.element = element;
   this.doc = doc;
+  this.canvasViewers = new Array();
   this.viewportWidth = 800;
   this.zoom = 0.8;
 
@@ -25,20 +43,13 @@ Vex.ML.Viewer.prototype.layout = function() {
   this.element.innerHTML = "";
   var width = Math.floor(this.viewportWidth / this.zoom);
   var measure = 0;
+  if (this.doc.getPart(0).getMeasure(0)) measure = -1; // pickup measure
   while (measure < this.doc.getPart(0).getNumberOfMeasures()) {
     measure++;
-    var staffSystem = this.addStaffSystem({width:width,height:200},
-      {start_measure:measure, x:20, y:0, width:Math.floor((width-40)/this.zoom)}
+    var staffSystem = this.addStaffSystem({width:width,height:180},
+      {start_measure:measure, x:20, y:10, width:Math.floor((width-40)/this.zoom)}
       );
     measure = staffSystem.end_measure;
   }
 }
 
-var VexFlow_Viewer = null;
-
-$(document).ready(function() {
-  var doc = new Vex.Flow.MusicXML.Document(Vex.Flow.Test.MusicXML.Examples.Prelude_C_Major);
-  VexFlow_Viewer = new Vex.Flow.MusicXML.Viewer($('.vexml_viewer')[0], doc);
-  /*VexFlow_Viewer.addStaffSystem({width:800,height:500},
-  {start_measure:1, x:20, y: 0, width:700});*/
-});
