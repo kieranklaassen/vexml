@@ -62,6 +62,7 @@ Vex.ML.Attributes.prototype.init = function(element, options) {
 
   this.addAttribute('clef', 'clef', Vex.ML.Attributes.Clef);
   this.addAttribute('time', 'time', Vex.ML.Attributes.Time);
+  this.addAttribute('key', 'key', Vex.ML.Attributes.Key);
 
   return this;
 }
