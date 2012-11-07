@@ -93,6 +93,7 @@ Vex.ML.Measure.prototype.getNotes = function(options) {
   Vex.Merge(noteOptions, options);
   for (var i = 0; i < noteElements.length; i++) {
     var noteObj = new Vex.ML.Note(noteElements[i].cloneNode(true), noteOptions);
+    if (! noteObj.isRealNote()) continue;
 
     // Add note to the last note (or chord) and create a chord,
     // if this is not the first note

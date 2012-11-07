@@ -17,13 +17,16 @@ Vex.ML.Part.prototype.nodeName = 'part';
 Vex.ML.Part.prototype.init = function(element, options) {
   this.constructor.prototype.init.call(this, element, options);
 
-  this.measureElems = new Array(); // indexed same as MusicXML (typically from 1)
+  this.firstMeasure = null; // normally 1 (0 if pickup measure)
+  this.measureElems = new Array(); // always indexed from 0
   var allMeasures = this.element.getElementsByTagName('measure');
   for (var i = 0; i < allMeasures.length; i++) {
     var num = parseInt(allMeasures[i].getAttribute('number'));
     if (isNaN(num)) continue;
-    if (! (num in this.measureElems))
-      this.measureElems[num] = allMeasures[i];
+    if (this.firstMeasure == null) this.firstMeasure = num;
+    var index = num - this.firstMeasure;
+    if (! (index in this.measureElems))
+      this.measureElems[index] = allMeasures[i];
   }
 
   this.attributes = new Array(); // indexed in measures
@@ -44,12 +47,10 @@ Vex.ML.Part.prototype.init = function(element, options) {
         this.staves[staff_num] = new Vex.ML.PartStaff(this, {staff_num: staff_num});
       break;
     }
-
-  this.getAttributes(2);
 }
 
 Vex.ML.Part.prototype.getNumberOfMeasures = function() {
-  return this.element.getElementsByTagName('measure').length;
+  return this.measureElems.length;
 }
 
 Vex.ML.Part.prototype.getAttributes = function(measureNum, options) {

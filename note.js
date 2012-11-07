@@ -44,10 +44,15 @@ Vex.ML.Note.prototype.init = function(element, options) {
       ! (options.measure instanceof Vex.ML.Measure)) {
     throw new Error("VeXML.Note requires a VeXML.Measure"); }
   var duration = this.element.getElementsByTagName('duration')[0];
-  if (! duration) { throw new Error("note should contain duration"); }
-  duration = parseInt(duration.textContent);
-  if (isNaN(duration)) { throw new Error("can't parse note duration"); }
-  this.numTicks = options.measure.ticksPerDivision * duration;
+  if (duration) {
+    duration = parseInt(duration.textContent);
+    if (isNaN(duration)) { throw new Error("can't parse note duration"); }
+    this.numTicks = options.measure.ticksPerDivision * duration;
+
+    // FIXME: Calculate symbolic duration
+    this.duration = "8";
+  }
+  else this.numTicks = 0;
 
   var restElem = this.element.getElementsByTagName('rest')[0];
   if (restElem) {
@@ -117,6 +122,10 @@ Vex.ML.Note.prototype.init = function(element, options) {
     };
   else
     this.beam = null;
+}
+
+Vex.ML.Note.prototype.isRealNote = function() {
+  return this.duration != 0;
 }
 
 // Compatibility with VeXML.Chord

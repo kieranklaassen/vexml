@@ -95,7 +95,7 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       
   var partIDs = this.document.getPartIDs();
   var totalMinWidth = 0;
-  for (var i = 0; i <= lastMeasure - this.start_measure; i++) {
+  for (var i = 0; i < lastMeasure - this.start_measure; i++) {
     if (! (i in this.voices)) {
       this.voices[i] = new Array();
       this.vexflowVoices[i] = new Array();
@@ -161,7 +161,9 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
     this.minActualWidths[i] = maxX;
 
     var measureWidth = maxX + this.additionalWidths[i];
-    if (measureWidth + totalMinWidth > this.width) {
+    // Sane minimum measure width for calculating total width
+    var minWidth = (measureWidth < 250) ? 250 : measureWidth;
+    if (minWidth + totalMinWidth > this.width) {
       this.voices.splice(i, 1);
       this.vexflowVoices.splice(i, 1);
       this.voiceStaves.splice(i, 1);
@@ -169,7 +171,7 @@ Vex.ML.StaffSystem.prototype.createVoicesAndFormatters = function() {
       break;
     }
     else {
-      totalMinWidth += measureWidth;
+      totalMinWidth += minWidth;
       this.end_measure = this.start_measure + i;
     }
   }
